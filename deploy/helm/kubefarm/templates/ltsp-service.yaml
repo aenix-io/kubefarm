@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    #metallb.universe.tf/address-pool: ltsp
+    metallb.universe.tf/allow-shared-ip: ltsp1
+  labels:
+    app: ltsp1
+  name: ltsp1-http
+spec:
+  #loadBalancerIP: 1.2.3.4
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: ltsp1
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    #metallb.universe.tf/address-pool: ltsp
+    metallb.universe.tf/allow-shared-ip: ltsp1
+  labels:
+    app: ltsp1
+  name: ltsp1-tftp
+spec:
+  #loadBalancerIP: 1.2.3.4
+  ports:
+  - name: tftp
+    port: 69
+    protocol: UDP
+  selector:
+    app: ltsp1
+  type: LoadBalancer

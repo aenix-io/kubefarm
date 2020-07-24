@@ -1,0 +1,12 @@
+name: kubefarm
+description: Kubefarm cluster
+version: v0.0.1
+keywords:
+  - kubernetes
+  - ltsp
+home: https://github.com/kvaps/kubefarm
+sources:
+  - https://github.com/kvaps/kubefarm
+maintainers:
+  - name: kvaps
+    email: kvapss@gmail.com

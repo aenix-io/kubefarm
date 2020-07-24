@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations: {}
+  labels:
+  name: ltsp1-config
+data:
+  authorized_keys: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSdizJARrlcOWVYswKPYbQ3FMa2eLJeE1utgUH7sDcOCsbpQh+Pu09biGkvO3QYGmeRXf64rQDx8adSf1Y/AutVJ6b044GEYoGWrenAPnt2VKyu7IrPvLr+0QLTuPsUPhKQToxs84j7eJ+Yzaro6etM2aPMlCuqHv9ZWFda198YQT3xr8ceAk6+Ni/q5vw5FDkmKtGVNl2UXHKovFxnGOkwYaPUlizTnj4WpK8e4FUQ95p75IQulGWGkL5RTbABhyFDuiVlGlW71qit79EaZDO4WA1tkdXYIQauIHQ073/ogI3YBlkD1QDsLXobjDHDaD3XMXK7lePudUkhiUng225 id_rsa
+  docker.json: |
+    {
+      "exec-opts": ["native.cgroupdriver=systemd"],
+      "iptables": false,
+      "ip-forward": false,
+      "bridge": "none",
+      "log-driver": "journald",
+      "storage-driver": "overlay2"
+    }
+  kubeadm-join.service: |
+    [Unit]
+    Description=Join Kubernetes
+    After=network-online.target
+    Wants=network-online.target
+    Wants=docker.service docker.socket
+    After=docker.service docker.socket
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/bin/kubeadm join cluster1-kubernetes-apiserver:6443 --token bupcga.nye4j4f9187uclsf     --discovery-token-ca-cert-hash sha256:d4df307e8c9a978d1a70d241edb867c8ef71c06cb84cb8e2bb6f7c6eb51201ae
+    Restart=on-failure
+
+    [Install]
+    WantedBy=multi-user.target
+  ltsp.conf: |
+    # vim: set syntax=yaml:
+    [common]
+    [clients]
+    OMIT_FUNCTIONS="pam_main mask_services_main config_ifupdown config_network_manager"
+    DEBUG_SHELL=1
+    FSTAB_01_SSH                     = "/dev/data/ssh     /etc/ssh          ext4  nofail,noatime,nodiratime,x-systemd.device-timeout=10,x-systemd.wanted-by=ssh.service 0 0"
+    FSTAB_02_JOURNALD                = "/dev/data/journal /var/log/journal  ext4  nofail,noatime,nodiratime,x-systemd.device-timeout=10,x-systemd.wanted-by=systemd-journald.service 0 0"
+    FSTAB_03_KUBELET_TMPFS           = "tmpfs             /var/lib/kubelet  tmpfs noatime,nodiratime,x-systemd.wanted-by=kubelet.service 0 0"
+    FSTAB_04_DOCKER_TMPFS            = "tmpfs             /var/lib/docker   tmpfs noatime,nodiratime,x-systemd.wanted-by=docker.service 0 0"
+    FSTAB_05_DOCKER_LVM              = "/dev/data/docker  /var/lib/docker   ext4  nofail,noatime,nodiratime,x-systemd.device-timeout=10,x-systemd.wanted-by=docker.service 0 0"
+
+    POST_INIT_FIX_HOSTS              = "sed -i \"s/^127.0.1.1/\${IP_ADDRESS}/g\" /etc/hosts"
+    POST_INIT_FIX_FSTAB              = "lvs | grep -q . && sed -i '/^tmpfs.*docker/d' /etc/fstab || sed -i '/^\/dev/d' /etc/fstab"
+
+    [init/]
+    systemctl mask apt-daily.timer apt-daily-upgrade.timer
+    # Set timezone
+    ln -sf /usr/share/zoneinfo/Europe/Prague /etc/localtime
+    # Setup journald
+    printf '%s\n' '[Manager]' 'SystemMaxUse=200M' 'RuntimeMaxUse=200M' > /etc/systemd/journald.conf
+    # Setup SSH Daemon
+    ssh-keygen -A
+    sed -i 's/#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+    # Sysctl settings
+    cp -f /etc/ltsp/sysctl.conf /etc/sysctl.d/99-sysctl.conf
+    # Setup root account
+    usermod -p '$1$aVsGC0N9$MxAX.GarIiUCD04QMgZhN0' root
+    mkdir -p /root/.ssh/
+    cp -f /etc/ltsp/authorized_keys /root/.ssh/authorized_keys
+    # Setup docker config
+    mkdir -p /etc/docker
+    cp -f /etc/ltsp/docker.json /etc/docker/daemon.json
+    # Setup modules
+    cp -f /etc/ltsp/modules /etc/modules
+    # Setup services
+    for svc in /etc/ltsp/*.service; do
+      cp "$svc" /etc/systemd/system/
+      systemctl enable "$(basename "$svc")"
+    done
+    # Colorize PS1
+    echo "PS1='\[\033[01;35m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]# '" >> /root/.bashrc
+    echo "PS1='\[\033[00;35m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]# '" >> /etc/skel/.bashrc
+    cp -f /etc/skel/.profile /root/.profile
+    # Configure LVM
+    sed -i /etc/lvm/lvm.conf \
+        -e '/^ *[^#] *global_filter/d' \
+        -e '/^devices {/a\        global_filter = [ \"r|/dev/drbd.*|\", \"r|/dev/dm-.*|\" ]' \
+        -e 's/use_lvmetad = 1/use_lvmetad = 0/'
+  modules: |
+    ipmi_si
+    acpi_ipmi
+    acpi_power_meter
+    br_netfilter
+    ip_vs
+    ip_vs_rr
+    ip_vs_wrr
+    ip_vs_sh
+    nf_conntrack_ipv4
+  sysctl.conf: |
+    kernel.printk = 1
+    kernel.unknown_nmi_panic = 1
+    kernel.softlockup_panic = 1
+    fs.file-max = 20000000
+    fs.nr_open = 20000000
+    net.ipv4.neigh.default.gc_thresh1 = 80000
+    net.ipv4.neigh.default.gc_thresh2 = 90000
+    net.ipv4.neigh.default.gc_thresh3 = 100000
+    net.ipv4.ip_forward = 1

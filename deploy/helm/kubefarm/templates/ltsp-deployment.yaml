@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: {}
+  labels:
+    app: ltsp1
+  name: ltsp1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ltsp1
+  template:
+    metadata:
+      labels:
+        app: ltsp1
+    spec:
+      containers:
+
+      - name: config
+        image: kvaps/kubefarm-ltsp:v0.0.1
+        command:
+        - /bin/sh
+        - -c
+        # TODO
+        - apt-get -y install inotify-tools &&
+          touch /etc/ssh/ssh_host__key.pub &&
+          ltsp initrd &&
+          while inotifywait -e delete_self -q /etc/ltsp/..data; do ltsp initrd; done
+        env:
+        - name: TFTP_DIR
+          value: /shared
+        volumeMounts:
+        - mountPath: /etc/ltsp
+          name: config
+        - mountPath: /shared
+          name: shared
+
+      - name: nginx
+        image: kvaps/kubefarm-ltsp:v0.0.1
+        command:
+        - /bin/sh
+        - -c
+        - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
+          ln -sf /proc/self/fd/2 /var/log/nginx/error.log &&
+          ln -sf /proc/self/fd/2 /var/log/nginx/access.log && 
+          exec nginx -g "daemon off;"
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - mountPath: /shared
+          name: shared
+
+      - name: tftp
+        image: kvaps/kubefarm-ltsp:v0.0.1
+        command:
+        - /bin/sh
+        - -c
+        - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
+          exec dnsmasq -d --port=0 --enable-tftp=eth0 --tftp-single-port --tftp-root=/srv/tftp
+        ports:
+        - containerPort: 69
+          name: tftp
+          protocol: UDP
+        volumeMounts:
+        - mountPath: /shared
+          name: shared
+
+      imagePullSecrets:
+      - name: regsecret
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      volumes:
+      - name: shared
+        emptyDir: {}
+
+      - name: config
+        projected:
+          sources:
+          - configMap:
+              name: ltsp1-config
+
+

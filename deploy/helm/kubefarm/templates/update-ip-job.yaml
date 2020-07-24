@@ -1,0 +1,76 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+  labels:
+    app: cluster1-kubernetes-service-updater
+  name: cluster1-kubernetes-service-updater
+spec:
+  template:
+    metadata:
+      labels:
+        app: cluster1-kubernetes-service-updater
+    spec:
+      containers:
+      - name: kubeadm
+        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        command:
+        - /bin/sh
+        - -c
+        - |
+            {{`
+            getip(){
+              kubectl get service -w "$1" -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' 2>/dev/null | head -n1
+            }
+            set -e
+            echo "Waiting for svc/$SVC1"
+            IP1=$(getip $SVC1)
+            echo "Waiting for svc/$SVC2"
+            IP2=$(getip $SVC2)
+            if [ "$IP1" != "$IP2" ]; then
+              echo "IP for $SVC1 and $SVC2 not match"
+              exit 1
+            fi
+            `}}
+
+            kubectl apply -f- <<EOT
+            apiVersion: dnsmasq.kvaps.cf/v1beta1
+            kind: DnsHosts
+            metadata:
+              name: ltsp1
+            spec:
+              controller: ""
+              hosts:
+              - hostnames:
+                - ltsp1
+                ip: "$IP1"
+            EOT
+
+            kubectl apply -f- <<EOT
+            apiVersion: dnsmasq.kvaps.cf/v1beta1
+            kind: DhcpOptions
+            metadata:
+              name: ltsp1
+            spec:
+              controller: ""
+              options:
+              - key: option:server-ip-address
+                tags:
+                - ltsp1
+                values:
+                - "$IP1"
+            EOT
+        env:
+        - name: SVC1
+          value: ltsp1-tftp
+        - name: SVC2
+          value: ltsp1-http
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: OnFailure
+      serviceAccountName: service-updater

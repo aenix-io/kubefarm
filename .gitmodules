@@ -1,0 +1,3 @@
+[submodule "deploy/helm/kubefarm/vendor/github.com/kvaps/kubernetes-in-kubernetes"]
+	path = deploy/helm/kubefarm/vendor/github.com/kvaps/kubernetes-in-kubernetes
+	url = https://github.com/kvaps/kubernetes-in-kubernetes

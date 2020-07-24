@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+  labels:
+    app: cluster1-kubernetes-create-token
+  name: cluster1-kubernetes-create-token
+spec:
+  template:
+    metadata:
+      labels:
+        app: cluster1-kubernetes-create-token
+    spec:
+      containers:
+      - name: kubeadm
+        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        command:
+        - /bin/sh
+        - -c
+        - |
+            {{`
+            getip(){
+              kubectl get service -w "$1" -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' 2>/dev/null | head -n1
+            }
+            set -e
+
+            echo "Waiting for svc/$SVC"
+            IP=$(getip $SVC | base64 | tr -d '\n')
+
+            echo "Acquiring token"
+            kubeadm --kubeconfig /etc/kubernetes/admin.conf token create --description kubefarm --print-join-command > /tmp/token &&
+            TOKEN=$(cat /tmp/token | base64 | tr -d '\n')
+
+            kubectl patch secret test -p="{\"data\":{\"ip\":\"$IP\", \"token\":\"$TOKEN\"}}"
+            `}}
+        env:
+        - name: SVC
+          value: cluster1-kubernetes-apiserver
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/kubernetes/
+          name: kubeconfig
+          readOnly: true
+
+      restartPolicy: OnFailure
+      serviceAccountName: token-generator
+      volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: cluster1-kubernetes-admin-conf

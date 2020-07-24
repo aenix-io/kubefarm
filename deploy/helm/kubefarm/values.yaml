@@ -1,0 +1,49 @@
+# Tags allow to enable/disable certain components of kubefarm as defined in requirements.yaml
+# https://docs.helm.sh/developing_charts/#tags-and-condition-fields-in-requirements-yaml
+# 
+# tags:
+#   kubernetes: true
+
+# Kubernetes control-plane
+kubernetes:
+  persistence:
+    enabled: true
+    storageClassName: local-path
+
+  apiserver:
+    service:
+      type: LoadBalancer
+      annotations:
+        metallb.universe.tf/allow-shared-ip: ltsp1
+
+# Kubeadm token generator (need to join the nodes)
+tokenGenerator:
+  ttl: 24h0m0s
+  schedule: "0 */12 * * *"
+
+ltsp:
+  publishDHCP: true
+  publishDNS: false
+  service:
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/allow-shared-ip: ltsp1
+  hostname: ltsp1
+  tag: ltsp1
+
+#persistence:
+#  enabled: true
+#
+#  # Specify nodes for your etcd cluster
+#  # Path will be appended by <namespace_name>-<release_name>
+#  local:
+#    path: /var/lib/etcd
+#    nodes:
+#    - ks1
+#    - ks2
+#    - ks3
+#
+#controlPlane:
+#
+#node:
+#

@@ -1,0 +1,42 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: token-generator
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - watch
+  resourceNames:
+  - cluster1-kubernetes-apiserver
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - patch
+  resourceNames:
+  - test
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: token-generator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: token-generator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: token-generator
+subjects:
+- kind: ServiceAccount
+  name: token-generator
+  namespace: kubefarm
