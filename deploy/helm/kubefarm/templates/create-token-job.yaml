@@ -31,7 +31,7 @@ spec:
             kubeadm --kubeconfig /etc/kubernetes/admin.conf token create --description kubefarm --print-join-command > /tmp/token &&
             TOKEN=$(cat /tmp/token | base64 | tr -d '\n')
 
-            kubectl patch secret test -p="{\"data\":{\"ip\":\"$IP\", \"token\":\"$TOKEN\"}}"
+            kubectl patch secret test --type merge -p="{\"data\":{\"ip\":\"$IP\", \"token\":\"$TOKEN\"}}"
             `}}
         env:
         - name: SVC

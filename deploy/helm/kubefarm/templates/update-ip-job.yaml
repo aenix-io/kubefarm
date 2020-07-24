@@ -33,33 +33,9 @@ spec:
             fi
             `}}
 
-            kubectl apply -f- <<EOT
-            apiVersion: dnsmasq.kvaps.cf/v1beta1
-            kind: DnsHosts
-            metadata:
-              name: ltsp1
-            spec:
-              controller: ""
-              hosts:
-              - hostnames:
-                - ltsp1
-                ip: "$IP1"
-            EOT
+            kubectl patch dnshosts ltsp1-ip --type merge -p "{\"spec\":{\"hosts\":[{\"hostnames\":[\"ltsp1\"],\"ip\":\"$IP1\"}]}}"
+            kubectl patch dhcpoptions ltsp1-ip --type merge -p "{\"spec\":{\"options\":[{\"key\":\"option:server-ip-address\",\"tags\":[\"ltsp1\"],\"values\":[\"$IP1\"]}]}}"
 
-            kubectl apply -f- <<EOT
-            apiVersion: dnsmasq.kvaps.cf/v1beta1
-            kind: DhcpOptions
-            metadata:
-              name: ltsp1
-            spec:
-              controller: ""
-              options:
-              - key: option:server-ip-address
-                tags:
-                - ltsp1
-                values:
-                - "$IP1"
-            EOT
         env:
         - name: SVC1
           value: ltsp1-tftp

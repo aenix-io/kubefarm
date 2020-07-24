@@ -19,10 +19,11 @@ rules:
   - dnshosts
   - dhcpoptions
   verbs:
-  - '*'
+  - get
+  - patch
   resourceNames:
-  - ltsp1
-  - ltsp1
+  - ltsp1-ip
+  - ltsp1-ip
 ---
 apiVersion: v1
 kind: ServiceAccount

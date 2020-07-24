@@ -39,7 +39,7 @@ The project goals is to provide simple and unified way for deploying Kubernetes 
 * Deploy dnsmasq-controller for DHCP
 
       kubectl create namespace dnsmasq
-      kubectl create -n dnsmasq rolebinding dnsmasq-controller --role dnsmasq-controller --serviceaccount dnsmasq:dnsmasq-controller
+      kubectl create -n dnsmasq clusterrolebinding dnsmasq-controller --clusterrole dnsmasq-controller --serviceaccount dnsmasq:dnsmasq-controller
       kubectl create -n dnsmasq rolebinding dnsmasq-controller-leader-election --role dnsmasq-controller-leader-election --serviceaccount dnsmasq:dnsmasq-controller
       kubectl apply -n dnsmasq \
         -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/crd/bases/dnsmasq.kvaps.cf_dhcphosts.yaml \

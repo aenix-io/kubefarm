@@ -3,7 +3,16 @@ kind: DhcpOptions
 metadata:
   annotations: {}
   labels: {}
-  name: ltsp1
+  name: ltsp1-ip
+spec:
+  controller: ""
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DhcpOptions
+metadata:
+  annotations: {}
+  labels: {}
+  name: ltsp1-options
 spec:
   controller: ""
   options:
