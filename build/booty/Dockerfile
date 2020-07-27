@@ -122,18 +122,31 @@ RUN git clone https://github.com/ryanmjacobs/darkhttpd \
  && make install
 
 # Install booty
+ARG BOOTY_VERSION=4cf987460c7769fe3ac3c2d617b417a0defdc797
 RUN apt-get -y update \
- && apt-get -y install cpio squashfs-tools \
+ && apt-get -y install \
+      cpio \
+      squashfs-tools \
+      kmod \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
  && git clone https://github.com/sp00f1ng/booty.git \
  && cd booty \
+ && git checkout ${BOOTY_VERSION} \
  && make install
 
 COPY --from=rootfs / /rootfs
 
 RUN mkdir -p /initramfs \
- && /usr/bin/mkinitramfs /initramfs --overlay /rootfs --output /initrd --squashfs
+ && KERNEL_VERSION="$(ls -1 /rootfs/lib/modules/ | tail -n1)" \
+ && mkdir -p /initramfs/lib/modules/${KERNEL_VERSION}/kernel/fs/overlayfs \
+ && cp /rootfs/lib/modules/${KERNEL_VERSION}/modules.* /initramfs/lib/modules/${KERNEL_VERSION}/ \
+ && cp /rootfs/lib/modules/${KERNEL_VERSION}/kernel/fs/overlayfs/overlay.ko /initramfs/lib/modules/${KERNEL_VERSION}/kernel/fs/overlayfs/overlay.ko \
+ && mkdir -p /initramfs/lib/modules-load.d \
+ && echo overlay > /initramfs/lib/modules-load.d/overlay.conf \
+ && depmod -a -v -b /initramfs "${KERNEL_VERSION}"
+
+RUN /usr/bin/mkinitramfs /initramfs --overlay /rootfs --output /initrd --squashfs
 
 #-------------------------------------------------------------------------------
 
