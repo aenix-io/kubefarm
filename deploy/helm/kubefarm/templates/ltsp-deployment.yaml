@@ -19,15 +19,13 @@ spec:
       containers:
 
       - name: config
-        image: kvaps/kubefarm-ltsp:v0.0.1
+        image: kvaps/kubefarm-ltsp:v0.0.2
         command:
         - /bin/sh
         - -c
-        # TODO
-        - apt-get -y install inotify-tools &&
-          touch /etc/ssh/ssh_host__key.pub &&
-          ltsp initrd &&
-          while inotifywait -e delete_self -q /etc/ltsp/..data; do ltsp initrd; done
+        - touch /etc/ssh/ssh_host__key.pub &&
+          ltsp initrd && ltsp grub -h -H &&
+          while inotifywait -e delete_self -q /etc/ltsp/..data; do ltsp initrd && ltsp grub -h -H; done
         env:
         - name: TFTP_DIR
           value: /shared
@@ -37,15 +35,13 @@ spec:
         - mountPath: /shared
           name: shared
 
-      - name: nginx
-        image: kvaps/kubefarm-ltsp:v0.0.1
+      - name: http
+        image: kvaps/kubefarm-ltsp:v0.0.2
         command:
         - /bin/sh
         - -c
         - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
-          ln -sf /proc/self/fd/2 /var/log/nginx/error.log &&
-          ln -sf /proc/self/fd/2 /var/log/nginx/access.log && 
-          exec nginx -g "daemon off;"
+          exec darkhttpd /srv/tftp
         ports:
         - containerPort: 80
           name: http
@@ -54,7 +50,7 @@ spec:
           name: shared
 
       - name: tftp
-        image: kvaps/kubefarm-ltsp:v0.0.1
+        image: kvaps/kubefarm-ltsp:v0.0.2
         command:
         - /bin/sh
         - -c
