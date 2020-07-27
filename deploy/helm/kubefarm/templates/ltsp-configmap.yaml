@@ -33,6 +33,9 @@ data:
     WantedBy=multi-user.target
   ltsp.conf: |
     # vim: set syntax=yaml:
+    [server]
+    MENU_TIMEOUT=0
+    KERNEL_PARAMETERS="forcepae console=tty1 console=ttyS0,9600n8 nvme_core.default_ps_max_latency_us=0"
     [common]
     [clients]
     OMIT_FUNCTIONS="pam_main mask_services_main config_ifupdown config_network_manager"
@@ -58,7 +61,7 @@ data:
     # Sysctl settings
     cp -f /etc/ltsp/sysctl.conf /etc/sysctl.d/99-sysctl.conf
     # Setup root account
-    usermod -p '$1$aVsGC0N9$MxAX.GarIiUCD04QMgZhN0' root
+    usermod -p '$1$UtII3YsI$lN5uWqKWmABh9lb5LOw6m0' root
     mkdir -p /root/.ssh/
     cp -f /etc/ltsp/authorized_keys /root/.ssh/authorized_keys
     # Setup docker config
