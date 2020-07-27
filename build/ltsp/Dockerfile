@@ -169,13 +169,6 @@ RUN git clone git://thekelleys.org.uk/dnsmasq.git \
  && git checkout ${DNSMAQ_VERSION} \
  && make
 
-# Build darkhttpd
-ARG DARKHTTPD_VERSION=r2
-RUN git clone https://github.com/ryanmjacobs/darkhttpd \
- && cd darkhttpd/ \
- && git checkout ${DARKHTTPD_VERSION} \
- && make install
-
 # Copy client filesystem and kernel modules
 COPY --from=rootfs / /rootfs
 COPY --from=modules /lib/modules/ /rootfs/lib/modules/
@@ -198,10 +191,13 @@ RUN apt-get -y update \
       grub-pc-bin \
       grub-efi-amd64-bin \
       inotify-tools \
+      nginx \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+# Generate nginx config
+RUN ltsp http -I
+
 COPY --from=builder /dnsmasq/src/dnsmasq /usr/sbin/dnsmasq
-COPY --from=builder /usr/bin/darkhttpd /usr/bin/darkhttpd
 COPY --from=builder /srv/ltsp/images /srv/ltsp/images
 COPY --from=builder /srv/tftp/ltsp /srv/tftp/ltsp

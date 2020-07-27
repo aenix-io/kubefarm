@@ -19,7 +19,7 @@ spec:
       containers:
 
       - name: config
-        image: kvaps/kubefarm-ltsp:v0.0.2
+        image: kvaps/kubefarm-ltsp:v0.0.3
         command:
         - /bin/sh
         - -c
@@ -36,12 +36,22 @@ spec:
           name: shared
 
       - name: http
-        image: kvaps/kubefarm-ltsp:v0.0.2
+        image: kvaps/kubefarm-ltsp:v0.0.3
         command:
         - /bin/sh
         - -c
         - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
-          exec darkhttpd /srv/tftp
+          ln -sf /shared/ltsp/grub /srv/tftp/ltsp/grub &&
+          ln -sf /proc/self/fd/2 /var/log/nginx/error.log &&
+          ln -sf /proc/self/fd/2 /var/log/nginx/access.log && 
+          exec nginx -g "daemon off;"
+        readinessProbe:
+          httpGet:
+            path: /ltsp/grub/grub.cfg
+            port: 80
+            scheme: HTTP
+          periodSeconds: 10
+          initialDelaySeconds: 5
         ports:
         - containerPort: 80
           name: http
@@ -50,7 +60,7 @@ spec:
           name: shared
 
       - name: tftp
-        image: kvaps/kubefarm-ltsp:v0.0.2
+        image: kvaps/kubefarm-ltsp:v0.0.3
         command:
         - /bin/sh
         - -c
