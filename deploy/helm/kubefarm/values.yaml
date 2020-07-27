@@ -51,7 +51,8 @@ ltsp:
       log-driver: journald
       storage-driver: overlay2
 
-    #sshAuthorizedKeys: ssh-rsa AAAAB3N...
+    sshAuthorizedKeys: []
+      #- ssh-rsa AAAAB3N...
     #rootPasswd: $1$VVosH8FD$G5W3LZJC7479RsVUnng051 # `openssl passwd -1`
 
     disableAutoupdate: true
@@ -62,16 +63,13 @@ ltsp:
       net.ipv4.ip_forward: 1
 
     modules:
-    - br_netfilter
-    #- ip_vs
-    #- ip_vs_rr
-    #- ip_vs_wrr
-    #- ip_vs_sh
+      - br_netfilter
+      #- ip_vs
+      #- ip_vs_rr
+      #- ip_vs_wrr
+      #- ip_vs_sh
 
     options:
-      DEBUG_SHELL: "1"
-      FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
-      FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
       OMIT_FUNCTIONS: "pam_main mask_services_main"
       POST_INIT_FIX_HOSTS: 'sed -i "s/^127.0.1.1/\${IP_ADDRESS}/g" /etc/hosts'
 
@@ -93,12 +91,14 @@ nodePools:
         mac: aa:bb:cc:dd:ee:ff
         clientIDs: ['*']
         ip: 192.168.0.101
-    config:
+    tags:
       - default
 
 # ------------------------------------------------------------------------------
+# Tags specific configuration
+# ------------------------------------------------------------------------------
 
-config:
+tags:
   dhcpOptions:
     # dnsmasq options list
     # see available options (https://git.io/JJ0dH)
@@ -110,18 +110,21 @@ config:
       #domain-search: infra.example.org
 
   ltspOptions:
-    all: {}
-    default: {}
-      #DEBUG_SHELL: "1"
+    all:
+      DEBUG_SHELL: "1"
+      FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
+      FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
+    default: #{}
+      DEBUG_SHELL: "1"
 
   # TODO: https://github.com/kubernetes/kubeadm/issues/202#issuecomment-302929790
-  nodePoolsLabels:
+  kubernetesLabels:
     all: {}
     default: {}
       #label1: value1
       #label2: value2
 
-  nodePoolsTaints:
+  kubernetesTaints:
     all: {}
     default: {}
       #- effect: NoSchedule
