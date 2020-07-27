@@ -31,105 +31,100 @@ tokenGenerator:
 # ------------------------------------------------------------------------------
 ltsp:
   publishDHCP: true
-  publishDNS: false
   service:
     type: LoadBalancer
     annotations:
       metallb.universe.tf/allow-shared-ip: ltsp1
-  hostname: ltsp1
-  tag: ltsp1
 
   config:
-    server:
-      MENU_TIMEOUT: 0
-      KERNEL_PARAMETERS: "forcepae console=tty1 console=ttyS0,9600n8 nvme_core.default_ps_max_latency_us=0"
-    extraFiles:
-      docker.json: |
-        {
-          "exec-opts": ["native.cgroupdriver=systemd"],
-          "iptables": false,
-          "ip-forward": false,
-          "bridge": "none",
-          "log-driver": "journald",
-          "storage-driver": "overlay2"
-        }
-      authorized_keys: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSdizJARrlcOWVYswKPYbQ3FMa2eLJeE1utgUH7sDcOCsbpQh+Pu09biGkvO3QYGmeRXf64rQDx8adSf1Y/AutVJ6b044GEYoGWrenAPnt2VKyu7IrPvLr+0QLTuPsUPhKQToxs84j7eJ+Yzaro6etM2aPMlCuqHv9ZWFda198YQT3xr8ceAk6+Ni/q5vw5FDkmKtGVNl2UXHKovFxnGOkwYaPUlizTnj4WpK8e4FUQ95p75IQulGWGkL5RTbABhyFDuiVlGlW71qit79EaZDO4WA1tkdXYIQauIHQ073/ogI3YBlkD1QDsLXobjDHDaD3XMXK7lePudUkhiUng225 id_rsa
-      kubeadm-join.service:
-        [Unit]
-        Description=Join Kubernetes
-        After=network-online.target
-        Wants=network-online.target
-        Wants=docker.service docker.socket
-        After=docker.service docker.socket
-    
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/bin/kubeadm join cluster1-kubernetes-apiserver:6443 --token bupcga.nye4j4f9187uclsf     --discovery-token-ca-cert-hash sha256:d4df307e8c9a978d1a70d241edb867c8ef71c06cb84cb8e2bb6f7c6eb51201ae
-        Restart=on-failure
-    
-        [Install]
-        WantedBy=multi-user.target
-    extraSections:
-      init/: |
-        # Disable autoupdates
-        systemctl mask apt-daily.timer apt-daily-upgrade.timer
-        # Set timezone
-        ln -sf /usr/share/zoneinfo/Europe/Prague /etc/localtime
-        # Setup journald
-        printf '%s\n' '[Manager]' 'SystemMaxUse=200M' 'RuntimeMaxUse=200M' > /etc/systemd/journald.conf
-        # Setup SSH Daemon
-        ssh-keygen -A
-        # Sysctl settings
-        cp -f /etc/ltsp/sysctl.conf /etc/sysctl.d/99-sysctl.conf
-        # Setup ssh keys
-        mkdir -p /root/.ssh/
-        cp -f /etc/ltsp/authorized_keys /root/.ssh/authorized_keys
-        # Setup docker config
-        mkdir -p /etc/docker
-        cp -f /etc/ltsp/docker.json /etc/docker/daemon.json
-        # Setup modules
-        cp -f /etc/ltsp/modules /etc/modules
-        # Setup services
-        for svc in /etc/ltsp/*.service; do
-          cp "$svc" /etc/systemd/system/
-          systemctl enable "$(basename "$svc")"
-        done
+    kernelOptions: []
+      #- forcepae
+      #- console=tty1
+      #- console=ttyS0,9600n8
+      #- nvme_core.default_ps_max_latency_us=0
+
+    dockerConfig:
+      exec-opts: [ native.cgroupdriver=systemd ]
+      iptables: false
+      ip-forward: false
+      bridge: none
+      log-driver: journald
+      storage-driver: overlay2
+
+    #sshAuthorizedKeys: ssh-rsa AAAAB3N...
+    #rootPasswd: $1$VVosH8FD$G5W3LZJC7479RsVUnng051 # `openssl passwd -1`
+
+    disableAutoupdate: true
+
+    timezone: UTC # from /usr/share/zoneinfo/<timezone>
+
+    sysctls:
+      net.ipv4.ip_forward: 1
+
+    modules:
+    - br_netfilter
+    #- ip_vs
+    #- ip_vs_rr
+    #- ip_vs_wrr
+    #- ip_vs_sh
+
+    options:
+      DEBUG_SHELL: "1"
+      FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
+      FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
+      OMIT_FUNCTIONS: "pam_main mask_services_main"
+      POST_INIT_FIX_HOSTS: 'sed -i "s/^127.0.1.1/\${IP_ADDRESS}/g" /etc/hosts'
+
+    sections: {}
+      #init/: |
+      #  cp /etc/ltsp/foo.txt /tmp/foo.txt
+
+    extraFiles: {}
+      #foo.txt: |
+      #   echo "Hello world!"
 
 # ------------------------------------------------------------------------------
 # Nodes configuration
 # ------------------------------------------------------------------------------
 
-config:
-  dhcp:
-    # dnsmasq options list
-    # see available options (https://git.io/JJ0dH)
-    - name: default
-      options:
-        router: 192.168.0.1
-        dns-server: 192.168.0.1
-        broadcast: 192.168.255.255
-        domain-search: infra.example.org
-
-  ltsp:
-    - name: default
-      options:
-        OMIT_FUNCTIONS: "pam_main mask_services_main"
-        FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
-        FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
-        POST_INIT_FIX_HOSTS: "sed -i \"s/^127.0.1.1/\${IP_ADDRESS}/g\" /etc/hosts"
-  
-    - name: rootpasswd
-      options:
-        # setup root account password (use `openssl passwd -1`)
-        POST_INIT_FIX_HOSTS: "usermod -p '$1$aVsGC0N9$MxAX.GarIiUCD04QMgZhN0' root"
-        POST_INIT_ALLOW_SSH: "sed -i 's/#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-        
-  nodePools:
-    - config:
-      - default
-      - rootpasswd
-      nodes:
+nodePools:
+  - nodes:
       - name: node1
         mac: aa:bb:cc:dd:ee:ff
         clientIDs: ['*']
         ip: 192.168.0.101
+    config:
+      - default
+
+# ------------------------------------------------------------------------------
+
+config:
+  dhcpOptions:
+    # dnsmasq options list
+    # see available options (https://git.io/JJ0dH)
+    all: {}
+    default: {}
+      #router: 192.168.0.1
+      #dns-server: 192.168.0.1
+      #broadcast: 192.168.255.255
+      #domain-search: infra.example.org
+
+  ltspOptions:
+    all: {}
+    default: {}
+      #DEBUG_SHELL: "1"
+
+  # TODO: https://github.com/kubernetes/kubeadm/issues/202#issuecomment-302929790
+  nodePoolsLabels:
+    all: {}
+    default: {}
+      #label1: value1
+      #label2: value2
+
+  nodePoolsTaints:
+    all: {}
+    default: {}
+      #- effect: NoSchedule
+      #  key: foo
+      #  value: bar
+
