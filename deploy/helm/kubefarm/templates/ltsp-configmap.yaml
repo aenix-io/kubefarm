@@ -80,15 +80,11 @@ data:
     done
 
     # Setup kubelet extraArgs
-    cat > /etc/systemd/system/kubelet.service.d/20-labels-taints.conf <<EOF
-    [Service]
-    Environment="KUBELET_EXTRA_ARGS=$(
-      LABELS=$(echo_values "KUBERNETES_LABELS_[[:alnum:]_]*" | paste -s -d,)
+    ( LABELS=$(echo_values "KUBERNETES_LABELS_[[:alnum:]_]*" | paste -s -d,)
       TAINTS=$(echo_values "KUBERNETES_TAINTS_[[:alnum:]_]*" | paste -s -d,)
-      echo -n "${LABELS:+--node-labels=$LABELS}"
-      echo -n "${TAINTS:+--register-with-taints=$TAINTS}"
-    )"
-    EOF
+      printf "[Service]\nEnvironment=\"KUBELET_EXTRA_ARGS=%s %s\"\n" \
+        "${LABELS:+--node-labels=$LABELS}" "${TAINTS:+--register-with-taints=$TAINTS}"
+    ) > /etc/systemd/system/kubelet.service.d/20-labels-taints.conf
 
     {{- with index .Values.ltsp.config.sections "init/" }}
     {{- . | nindent 4 }}
