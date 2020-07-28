@@ -65,6 +65,7 @@ spec:
         - /bin/sh
         - -c
         - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
+          ln -sf /shared/ltsp/grub /srv/tftp/ltsp/grub &&
           exec dnsmasq -d --port=0 --enable-tftp=eth0 --tftp-single-port --tftp-root=/srv/tftp
         ports:
         - containerPort: 69
@@ -90,5 +91,5 @@ spec:
           sources:
           - configMap:
               name: ltsp1-config
-
-
+          - secret:
+              name: test

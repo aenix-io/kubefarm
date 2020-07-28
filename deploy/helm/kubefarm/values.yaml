@@ -49,7 +49,7 @@ ltsp:
       #- ssh-rsa AAAAB3N...
 
     # Hashed password for root, use `openssl passwd -1` to generate one
-    #rootPasswd: $1$VVosH8FD$G5W3LZJC7479RsVUnng051
+    rootPasswd: $1$jaKnTiEb$IhpsNUfssXQ8eQg8orald0 # hackme
 
     # Sysctl setting for the nodes
     sysctls:
@@ -98,9 +98,9 @@ ltsp:
 nodePools:
   - nodes:
       - name: node1
-        mac: aa:bb:cc:dd:ee:ff
+        mac: 02:00:ac:10:00:0a
         clientIDs: ['*']
-        ip: 192.168.0.101
+        ip: 172.16.0.10
     tags:
       - debug
       #- foo
@@ -113,10 +113,10 @@ tags:
   dhcpOptions:
     # dnsmasq options
     # see all available options list (https://git.io/JJ0dH)
-    all: {}
-      #router: 192.168.0.1
-      #dns-server: 192.168.0.1
-      #broadcast: 192.168.255.255
+    all:
+      router: 	172.16.0.1
+      dns-server: 8.8.8.8
+      broadcast: 172.16.255.255
       #domain-search: infra.example.org
 
   ltspOptions:

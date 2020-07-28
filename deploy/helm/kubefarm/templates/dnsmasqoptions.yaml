@@ -1,0 +1,19 @@
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DnsmasqOptions
+metadata:
+  annotations: {}
+  labels: {}
+  name: global-dhcp
+spec:
+  controller: ""
+  options:
+  - key: dhcp-range
+    values: [172.16.0.0,static,255.255.255.0,172.16.0.255,infinite]
+  - key: dhcp-match
+    values: [set:iPXE,"17","39"]
+  - key: dhcp-match
+    values: [set:X86PC,option:client-arch,"0"]
+  - key: dhcp-match
+    values: [set:X86-64_EFI,option:client-arch,"7"]
+  - key: dhcp-match
+    values: [set:X86-64_EFI,option:client-arch,"9"]

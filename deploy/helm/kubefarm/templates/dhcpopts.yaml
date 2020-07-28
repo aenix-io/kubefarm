@@ -33,3 +33,20 @@ spec:
     - X86-64_EFI
     values:
     - ltsp/grub/x86_64-efi/core.efi
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DhcpOptions
+metadata:
+  annotations: {}
+  labels: {}
+  name: dhcp-global
+spec:
+  controller: ""
+  options:
+  - key: option:router
+    values: [172.16.0.1]
+  - key: option:dns-server
+    values: [8.8.8.8]
+  #- key: option:broadcast
+  #- key: "28"
+  #  values: [172.16.0.255]
