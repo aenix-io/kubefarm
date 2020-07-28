@@ -70,12 +70,13 @@ ltsp:
       #- ip_vs_sh
 
     options:
-      OMIT_FUNCTIONS: "pam_main mask_services_main"
-      POST_INIT_FIX_HOSTS: 'sed -i "s/^127.0.1.1/\${IP_ADDRESS}/g" /etc/hosts'
+      MENU_TIMEOUT: 0
 
     sections: {}
       #init/: |
       #  cp /etc/ltsp/foo.txt /tmp/foo.txt
+      #initrd-bottom/: |
+      #  echo 123
 
     extraFiles: {}
       #foo.txt: |
@@ -92,7 +93,8 @@ nodePools:
         clientIDs: ['*']
         ip: 192.168.0.101
     tags:
-      - default
+      - debug
+      #- foo
 
 # ------------------------------------------------------------------------------
 # Tags specific configuration
@@ -100,10 +102,9 @@ nodePools:
 
 tags:
   dhcpOptions:
-    # dnsmasq options list
-    # see available options (https://git.io/JJ0dH)
+    # dnsmasq options
+    # see all available options list (https://git.io/JJ0dH)
     all: {}
-    default: {}
       #router: 192.168.0.1
       #dns-server: 192.168.0.1
       #broadcast: 192.168.255.255
@@ -111,23 +112,24 @@ tags:
 
   ltspOptions:
     all:
-      DEBUG_SHELL: "1"
+      OMIT_FUNCTIONS: "pam_main mask_services_main"
+      POST_INIT_HOSTS: 'sed -i "s/^127.0.1.1/${IP_ADDRESS}/g" /etc/hosts'
       FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
       FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
-    default: #{}
+    debug:
       DEBUG_SHELL: "1"
 
   # TODO: https://github.com/kubernetes/kubeadm/issues/202#issuecomment-302929790
   kubernetesLabels:
     all: {}
-    default: {}
-      #label1: value1
-      #label2: value2
+    #foo:
+    #  label1: value1
+    #  label2: value2
 
   kubernetesTaints:
     all: {}
-    default: {}
-      #- effect: NoSchedule
-      #  key: foo
-      #  value: bar
+    #foo:
+    #  - effect: NoSchedule
+    #    key: foo
+    #    value: bar
 

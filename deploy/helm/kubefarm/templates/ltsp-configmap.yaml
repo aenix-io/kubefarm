@@ -69,20 +69,46 @@ data:
     {{- end }}
     {{- end }}
 
-    {{- range $k, $v := .Values.tags.ltspOptions }}
-    {{- if eq $k "all" }}
-    [clients]
-    {{- else }}
-    [tag_{{ $k }}]
-    {{- end }}
-    {{- range $k, $v := $v }}
-    {{ $k }}={{ $v | quote }}
+    {{- /* transpose .Values.tags to $tags */}}
+    {{- $tags := dict }}
+    {{- range $opt, $tag := .Values.tags }}
+    {{- range $tag, $vals := $tag }}
+    {{- $opts := get $tags $tag | default dict }}
+    {{- $_ := set $opts $opt $vals}}
+    {{- $_ := set $tags $tag $opts}}
     {{- end }}
     {{- end }}
 
+    # Options
+    {{- with $tags }}
+    {{- range $t, $v := $tags }}
+    {{- if eq $t "all" }}
+    [clients]
+    {{- else }}
+    [tag_{{ $t }}]
+    {{- end }}
+    {{- range $k, $v := $v.ltspOptions }}
+    {{ $k }}={{ $v | quote }}
+    {{- end }}
+    {{- with $v.kubernetesLabels }}
+    KUBERNETES_LABELS_{{ regexReplaceAll "\\W+" ($t | upper) "_" }}={{ (include "kubefarm.kubernetesLabels" .) | quote }}
+    {{- end }}
+    {{- with $v.kubernetesTaints }}
+    KUBERNETES_TAINTS_{{ regexReplaceAll "\\W+" ($t | upper) "_" }}={{ (include "kubefarm.kubernetesTaints" .) | quote }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+
+    # Nodes
     {{- range $p := .Values.nodePools }}
     {{- range $n := $p.nodes }}
+    {{- if $n.mac }}
     [{{ $n.mac }}]
+    {{- else if $.ip }}
+    [{{ $n.ip }}]
+    {{- else }}
+    [{{ $n.name }}]
+    {{- end }}
     {{- range $t := $p.tags }}
     INCLIDE={{ printf "tag_%s" $t | quote }}
     {{- end }}
