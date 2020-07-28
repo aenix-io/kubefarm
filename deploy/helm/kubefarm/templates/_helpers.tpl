@@ -24,7 +24,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- $local := dict "first" true -}}
 {{- range $k, $v := . -}}
 {{- if not $local.first -}},{{- end -}}
-{{ $k }}={{ $v }}
+{{ $k }}={{ $v | default "" }}
 {{- $_ := set $local "first" false -}}
 {{- end -}}
 {{- end -}}

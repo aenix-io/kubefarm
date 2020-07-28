@@ -37,12 +37,33 @@ ltsp:
       metallb.universe.tf/allow-shared-ip: ltsp1
 
   config:
-    kernelOptions: []
-      #- forcepae
-      #- console=tty1
-      #- console=ttyS0,9600n8
-      #- nvme_core.default_ps_max_latency_us=0
 
+    # Disable ubuntu apt auto-update task
+    disableAutoupdate: true
+
+    # from /usr/share/zoneinfo/<timezone> (eg. Europe/Moscow)
+    timezone: UTC
+
+    # SSH-keys authorized to access the nodes
+    sshAuthorizedKeys: []
+      #- ssh-rsa AAAAB3N...
+
+    # Hashed password for root, use `openssl passwd -1` to generate one
+    #rootPasswd: $1$VVosH8FD$G5W3LZJC7479RsVUnng051
+
+    # Sysctl setting for the nodes
+    sysctls:
+      net.ipv4.ip_forward: 1
+
+    # Modules to load during startup
+    modules:
+      - br_netfilter
+      #- ip_vs
+      #- ip_vs_rr
+      #- ip_vs_wrr
+      #- ip_vs_sh
+
+    # Docker configuration file
     dockerConfig:
       exec-opts: [ native.cgroupdriver=systemd ]
       iptables: false
@@ -51,41 +72,29 @@ ltsp:
       log-driver: journald
       storage-driver: overlay2
 
-    sshAuthorizedKeys: []
-      #- ssh-rsa AAAAB3N...
-    #rootPasswd: $1$VVosH8FD$G5W3LZJC7479RsVUnng051 # `openssl passwd -1`
-
-    disableAutoupdate: true
-
-    timezone: UTC # from /usr/share/zoneinfo/<timezone>
-
-    sysctls:
-      net.ipv4.ip_forward: 1
-
-    modules:
-      - br_netfilter
-      #- ip_vs
-      #- ip_vs_rr
-      #- ip_vs_wrr
-      #- ip_vs_sh
-
+    # Extra options for ltsp.conf
     options:
       MENU_TIMEOUT: 0
+      #KERNEL_PARAMETERS: "forcepae console=tty1 console=ttyS0,9600n8"
 
+    # Extra sections for ltsp.conf
     sections: {}
       #init/: |
-      #  cp /etc/ltsp/foo.txt /tmp/foo.txt
+      #  cp -f /etc/ltsp/journald.conf /etc/systemd/journald.conf
       #initrd-bottom/: |
-      #  echo 123
+      #  echo "Hello World!"
 
+    # These files will be copied into /etc/ltsp directory for all clients
+    # Note: all *.service files will be copied and enabled via systemd
     extraFiles: {}
-      #foo.txt: |
-      #   echo "Hello world!"
+      #journald.conf: |
+      #   [Manager]
+      #   SystemMaxUse=200M
+      #   RuntimeMaxUse=200M
 
 # ------------------------------------------------------------------------------
 # Nodes configuration
 # ------------------------------------------------------------------------------
-
 nodePools:
   - nodes:
       - name: node1
@@ -97,9 +106,9 @@ nodePools:
       #- foo
 
 # ------------------------------------------------------------------------------
-# Tags specific configuration
+# Extra options can be specified for each tag
+# ("all" options are aplicable for any node)
 # ------------------------------------------------------------------------------
-
 tags:
   dhcpOptions:
     # dnsmasq options
@@ -119,7 +128,6 @@ tags:
     debug:
       DEBUG_SHELL: "1"
 
-  # TODO: https://github.com/kubernetes/kubeadm/issues/202#issuecomment-302929790
   kubernetesLabels:
     all: {}
     #foo:
