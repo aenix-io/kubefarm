@@ -4,11 +4,12 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ARG VERSION
+ARG VERSION=v0.0.4
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Installing LTSP-packages
+# Install updates and LTSP package
 RUN apt-get -y update \
+ && apt-get -y upgrade \
  && apt-get -y install \
       curl \
  && apt-get clean
@@ -87,6 +88,11 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' \
 # Disable systemd-resolved
 RUN systemctl disable systemd-resolved.service \
  && systemctl mask systemd-resolved.service
+
+# Allow boot without root= specified
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=962509
+RUN sed -i 's/panic "No root device specified.*/return/' /usr/share/initramfs-tools/scripts/local \
+ && update-initramfs -u
 
 # Install docker
 ARG DOCKER_VERSION=19.03
@@ -172,6 +178,7 @@ RUN git clone git://thekelleys.org.uk/dnsmasq.git \
 # Copy client filesystem and kernel modules
 COPY --from=rootfs / /rootfs
 COPY --from=modules /lib/modules/ /rootfs/lib/modules/
+#COPY --from=modules /boot/ /rootfs/boot/
 
 # Generate motd
 COPY motd /rootfs/etc/motd
