@@ -1,6 +1,0 @@
-apiVersion: dnsmasq.kvaps.cf/v1beta1
-kind: DnsHosts
-metadata:
-  name: ltsp1-ip
-spec:
-  controller: ""

@@ -1,13 +1,18 @@
+{{- $fullName := include "kubernetes.fullname" . -}}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    #metallb.universe.tf/address-pool: ltsp
-    metallb.universe.tf/allow-shared-ip: ltsp1
+    {{- if not (index .Values.ltsp.service.annotations "metallb.universe.tf/allow-shared-ip") }}
+    metallb.universe.tf/allow-shared-ip: {{ $fullName }}
+    {{- end }}
+    {{- with .Values.ltsp.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
-    app: ltsp1
-  name: ltsp1-http
+    app: {{ $fullName }}-ltsp
+  name: {{ $fullName }}-ltsp-http
 spec:
   #loadBalancerIP: 1.2.3.4
   ports:
@@ -21,11 +26,15 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    #metallb.universe.tf/address-pool: ltsp
-    metallb.universe.tf/allow-shared-ip: ltsp1
+    {{- if not (index .Values.ltsp.service.annotations "metallb.universe.tf/allow-shared-ip") }}
+    metallb.universe.tf/allow-shared-ip: {{ $fullName }}
+    {{- end }}
+    {{- with .Values.ltsp.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
-    app: ltsp1
-  name: ltsp1-tftp
+    app: {{ $fullName }}-ltsp
+  name: {{ $fullName }}-ltsp-tftp
 spec:
   #loadBalancerIP: 1.2.3.4
   ports:
@@ -33,5 +42,5 @@ spec:
     port: 69
     protocol: UDP
   selector:
-    app: ltsp1
+    app: {{ $fullName }}-ltsp
   type: LoadBalancer

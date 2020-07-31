@@ -1,0 +1,43 @@
+{{- $fullName := include "kubernetes.fullname" . -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: {{ $fullName }}-token-generator
+  name: {{ $fullName }}-token-create
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}-token-generator
+    spec:
+      containers:
+      - name: kubeadm
+        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        command: [ '/scripts/gentoken.sh' ]
+        env:
+        - name: SVC
+          value: {{ $fullName }}-apiserver
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /etc/kubernetes/
+          name: kubeconfig
+          readOnly: true
+        - mountPath: /scripts
+          name: scripts
+      volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: {{ $fullName }}-admin-conf
+      - name: scripts
+        configMap:
+          name: {{ $fullName }}-ltsp-scripts
+          defaultMode: 0777
+      restartPolicy: OnFailure
+      serviceAccountName: {{ $fullName }}-token-generator

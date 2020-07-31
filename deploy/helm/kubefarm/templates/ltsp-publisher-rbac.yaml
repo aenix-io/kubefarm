@@ -5,48 +5,49 @@ kind: Role
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-token-generator
-  name: {{ $fullName }}-token-generator
+    app: {{ $fullName }}-ltsp-publisher
+  name: {{ $fullName }}-ltsp-publisher
 rules:
 - apiGroups:
   - ""
   resources:
   - services
   verbs:
-  - get
-  - watch
+  - '*'
   resourceNames:
-  - {{ $fullName }}-ltsp-join-token
+  - {{ $fullName }}-ltsp-tftp
+  - {{ $fullName }}-ltsp-http
 - apiGroups:
-  - ""
+  - "dnsmasq.kvaps.cf"
   resources:
-  - secrets
+  #- dnshosts
+  - dhcpoptions
   verbs:
   - get
   - patch
   resourceNames:
-  - test
+  - {{ $fullName }}-ltsp-ip
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-token-generator
-  name: {{ $fullName }}-token-generator
+    app: {{ $fullName }}-ltsp-publisher
+  name: {{ $fullName }}-ltsp-publisher
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-token-generator
-  name: {{ $fullName }}-token-generator
+    app: {{ $fullName }}-ltsp-publisher
+  name: {{ $fullName }}-ltsp-publisher
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ $fullName }}-token-generator
+  name: {{ $fullName }}-ltsp-publisher
 subjects:
 - kind: ServiceAccount
-  name: {{ $fullName }}-token-generator
+  name: {{ $fullName }}-ltsp-publisher
   namespace: {{ .Release.Namespace }}

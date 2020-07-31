@@ -1,0 +1,29 @@
+{{- $fullName := include "kubernetes.fullname" . -}}
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DhcpOptions
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}-ltsp
+  name: {{ $fullName }}-ltsp-options
+spec:
+  controller: ""
+  options:
+  - key: option:tftp-server
+    tags:
+    - {{ $fullName }}-ltsp
+    values:
+    - {{ $fullName }}-ltsp
+  - key: option:bootfile-name
+    tags:
+    - {{ $fullName }}-ltsp
+    - X86PC
+    values:
+    - ltsp/grub/i386-pc/core.0
+  - key: option:bootfile-name
+    tags:
+    - {{ $fullName }}-ltsp
+    - X86-64_EFI
+    values:
+    - ltsp/grub/x86_64-efi/core.efi

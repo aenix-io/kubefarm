@@ -1,10 +1,12 @@
+{{- $fullName := include "kubernetes.fullname" . -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   annotations: {}
   labels:
-  name: ltsp1-config
+    app: {{ $fullName }}-ltsp
+  name: {{ $fullName }}-ltsp
 data:
   {{- with .Values.ltsp.config.sshAuthorizedKeys }}
   authorized_keys: |
@@ -25,7 +27,7 @@ data:
 
     [Service]
     Type=oneshot
-    EnvironmentFile=/etc/ltsp/kubeadm_join_env
+    EnvironmentFile=/etc/ltsp/kubeadm-join.env
     ExecStartPre=/bin/sh -c "test -n '${HOSTNAME}' && sed -e '/ ${HOSTNAME}/d' -e '$a${IP} ${HOSTNAME}' -i /etc/hosts"
     ExecStart=/bin/sh -c "exec ${JOIN_COMMAND}"
     Restart=on-failure
