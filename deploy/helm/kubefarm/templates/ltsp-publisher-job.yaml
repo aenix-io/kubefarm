@@ -23,7 +23,7 @@ spec:
         - name: SVC2
           value: {{ $fullName }}-ltsp-http
         - name: TAG
-          value: {{ $fullName }}
+          value: {{ $fullName }}-ltsp
         - name: DHCPOPTIONS
           value: {{ $fullName }}-ltsp-ip
         imagePullPolicy: IfNotPresent

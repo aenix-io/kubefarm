@@ -19,6 +19,8 @@ spec:
         env:
         - name: SVC
           value: {{ $fullName }}-apiserver
+        - name: SECRET
+          value: {{ $fullName }}-ltsp-join-token
         imagePullPolicy: IfNotPresent
         resources:
           requests:

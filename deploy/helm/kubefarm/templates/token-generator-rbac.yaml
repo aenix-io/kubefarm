@@ -16,7 +16,7 @@ rules:
   - get
   - watch
   resourceNames:
-  - {{ $fullName }}-ltsp-join-token
+  - {{ $fullName }}-apiserver
 - apiGroups:
   - ""
   resources:
@@ -25,7 +25,7 @@ rules:
   - get
   - patch
   resourceNames:
-  - test
+  - {{ $fullName }}-ltsp-join-token
 ---
 apiVersion: v1
 kind: ServiceAccount
