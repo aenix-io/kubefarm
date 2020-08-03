@@ -97,7 +97,6 @@ nodePools:
   - nodes:
       - name: node1
         mac: 02:00:ac:10:00:0a
-        clientIDs: ['*']
         ip: 172.16.0.10
     tags:
       - debug
