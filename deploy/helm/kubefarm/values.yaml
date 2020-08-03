@@ -1,0 +1,141 @@
+# Tags allow to enable/disable certain components of kubefarm as defined in requirements.yaml
+# https://docs.helm.sh/developing_charts/#tags-and-condition-fields-in-requirements-yaml
+# 
+# tags:
+#   kubernetes: true
+
+# ------------------------------------------------------------------------------
+# Kubernetes control-plane
+# ------------------------------------------------------------------------------
+kubernetes:
+  persistence:
+    enabled: true
+    storageClassName: local-path
+
+  apiserver:
+    service:
+      type: LoadBalancer
+      annotations: {}
+
+# ------------------------------------------------------------------------------
+# Kubeadm token generator
+# (tokens are needed to join nodes to the cluster)
+# ------------------------------------------------------------------------------
+tokenGenerator:
+  tokenTtl: 24h0m0s
+  schedule: "0 */12 * * *"
+
+# ------------------------------------------------------------------------------
+# Network boot server configuration
+# ------------------------------------------------------------------------------
+ltsp:
+  publishDHCP: true
+  service:
+    type: LoadBalancer
+    annotations: {}
+
+  config:
+
+    # Disable ubuntu apt auto-update task
+    disableAutoupdate: true
+
+    # from /usr/share/zoneinfo/<timezone> (eg. Europe/Moscow)
+    timezone: UTC
+
+    # SSH-keys authorized to access the nodes
+    sshAuthorizedKeys: []
+      #- ssh-rsa AAAAB3N...
+
+    # Hashed password for root, use `openssl passwd -1` to generate one
+    rootPasswd: $1$jaKnTiEb$IhpsNUfssXQ8eQg8orald0 # hackme
+
+    # Sysctl setting for the nodes
+    sysctls:
+      net.ipv4.ip_forward: 1
+
+    # Modules to load during startup
+    modules:
+      - br_netfilter
+      #- ip_vs
+      #- ip_vs_rr
+      #- ip_vs_wrr
+      #- ip_vs_sh
+
+    # Docker configuration file
+    dockerConfig:
+      exec-opts: [ native.cgroupdriver=systemd ]
+      iptables: false
+      ip-forward: false
+      bridge: none
+      log-driver: journald
+      storage-driver: overlay2
+
+    # Extra options for ltsp.conf
+    options:
+      MENU_TIMEOUT: 0
+      #KERNEL_PARAMETERS: "forcepae console=tty1 console=ttyS0,9600n8"
+
+    # Extra sections for ltsp.conf
+    sections: {}
+      #init/: |
+      #  cp -f /etc/ltsp/journald.conf /etc/systemd/journald.conf
+      #initrd-bottom/: |
+      #  echo "Hello World!"
+
+    # These files will be copied into /etc/ltsp directory for all clients
+    # Note: all *.service files will be copied and enabled via systemd
+    extraFiles: {}
+      #journald.conf: |
+      #   [Manager]
+      #   SystemMaxUse=200M
+      #   RuntimeMaxUse=200M
+
+# ------------------------------------------------------------------------------
+# Nodes configuration
+# ------------------------------------------------------------------------------
+nodePools:
+  - nodes:
+      - name: node1
+        mac: 02:00:ac:10:00:0a
+        clientIDs: ['*']
+        ip: 172.16.0.10
+    tags:
+      - debug
+      #- foo
+
+# ------------------------------------------------------------------------------
+# Extra options can be specified for each tag
+# ("all" options are aplicable for any node)
+# ------------------------------------------------------------------------------
+tags:
+  dhcpOptions:
+    # dnsmasq options
+    # see all available options list (https://git.io/JJ0dH)
+    all:
+      router: 	172.16.0.1
+      dns-server: 8.8.8.8
+      broadcast: 172.16.255.255
+      #domain-search: infra.example.org
+
+  ltspOptions:
+    all:
+      OMIT_FUNCTIONS: "pam_main mask_services_main"
+      POST_INIT_HOSTS: 'sed -i "s/^127.0.1.1/${IP_ADDRESS}/g" /etc/hosts'
+      FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
+      FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
+    debug:
+      DEBUG_SHELL: "1"
+
+  kubernetesLabels:
+    all: {}
+    #foo:
+    #  label1: value1
+    #  label2: value2
+
+  kubernetesTaints:
+    all: {}
+    #foo:
+    #  - effect: NoSchedule
+    #    key: foo
+    #    value: bar
+

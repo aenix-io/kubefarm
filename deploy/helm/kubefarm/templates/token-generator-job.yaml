@@ -1,0 +1,48 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+  labels:
+    app: {{ $fullName }}-token-generator
+  name: {{ $fullName }}-token-create
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}-token-generator
+    spec:
+      containers:
+      - name: kubeadm
+        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        command: [ '/scripts/gentoken.sh' ]
+        env:
+        - name: SVC
+          value: {{ template "kubernetes.fullname" . }}-apiserver
+        - name: SECRET
+          value: {{ $fullName }}-join-token
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /etc/kubernetes/
+          name: kubeconfig
+          readOnly: true
+        - mountPath: /scripts
+          name: scripts
+      volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: {{ template "kubernetes.fullname" . }}-admin-conf
+      - name: scripts
+        configMap:
+          name: {{ $fullName }}-scripts
+          defaultMode: 0777
+      restartPolicy: OnFailure
+      serviceAccountName: {{ $fullName }}-token-generator

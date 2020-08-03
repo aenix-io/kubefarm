@@ -1,0 +1,29 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DhcpOptions
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-options
+spec:
+  controller: ""
+  options:
+  - key: option:tftp-server
+    tags:
+    - {{ $fullName }}
+    values:
+    - {{ $fullName }}
+  - key: option:bootfile-name
+    tags:
+    - {{ $fullName }}
+    - X86PC
+    values:
+    - ltsp/grub/i386-pc/core.0
+  - key: option:bootfile-name
+    tags:
+    - {{ $fullName }}
+    - X86-64_EFI
+    values:
+    - ltsp/grub/x86_64-efi/core.efi

@@ -1,0 +1,14 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-scripts
+data:
+  gentoken.sh: |+
+    {{- .Files.Get "scripts/gentoken.sh" | nindent 4 }}
+  publiship.sh: |+
+    {{- .Files.Get "scripts/publiship.sh" | nindent 4 }}

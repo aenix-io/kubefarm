@@ -1,0 +1,46 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    {{- if not (index .Values.ltsp.service.annotations "metallb.universe.tf/allow-shared-ip") }}
+    metallb.universe.tf/allow-shared-ip: {{ $fullName }}
+    {{- end }}
+    {{- with .Values.ltsp.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-http
+spec:
+  #loadBalancerIP: 1.2.3.4
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: {{ $fullName }}
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    {{- if not (index .Values.ltsp.service.annotations "metallb.universe.tf/allow-shared-ip") }}
+    metallb.universe.tf/allow-shared-ip: {{ $fullName }}
+    {{- end }}
+    {{- with .Values.ltsp.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-tftp
+spec:
+  #loadBalancerIP: 1.2.3.4
+  ports:
+  - name: tftp
+    port: 69
+    protocol: UDP
+  selector:
+    app: {{ $fullName }}
+  type: LoadBalancer

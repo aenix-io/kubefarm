@@ -1,0 +1,53 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publisher
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - '*'
+  resourceNames:
+  - {{ $fullName }}-tftp
+  - {{ $fullName }}-http
+- apiGroups:
+  - "dnsmasq.kvaps.cf"
+  resources:
+  #- dnshosts
+  - dhcpoptions
+  verbs:
+  - get
+  - patch
+  resourceNames:
+  - {{ $fullName }}-ip
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publisher
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publisher
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $fullName }}-publisher
+subjects:
+- kind: ServiceAccount
+  name: {{ $fullName }}-publisher
+  namespace: {{ .Release.Namespace }}

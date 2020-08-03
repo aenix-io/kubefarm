@@ -1,0 +1,45 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: before-hook-creation
+  labels:
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publish
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}-publisher
+    spec:
+      containers:
+      - name: kubeadm
+        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        command: [ '/scripts/publiship.sh' ]
+        env:
+        - name: SVC1
+          value: {{ $fullName }}-tftp
+        - name: SVC2
+          value: {{ $fullName }}-http
+        - name: TAG
+          value: {{ $fullName }}
+        - name: DHCPOPTIONS
+          value: {{ $fullName }}-ip
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /scripts
+          name: scripts
+      volumes:
+      - name: scripts
+        configMap:
+          name: {{ $fullName }}-scripts
+          defaultMode: 0777
+      restartPolicy: OnFailure
+      serviceAccountName: {{ $fullName }}-publisher

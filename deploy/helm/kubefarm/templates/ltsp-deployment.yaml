@@ -1,0 +1,96 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $fullName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}
+    spec:
+      containers:
+
+      - name: config
+        image: kvaps/kubefarm-ltsp:v0.0.4
+        command:
+        - /bin/sh
+        - -c
+        - touch /etc/ssh/ssh_host__key.pub &&
+          ltsp initrd && ltsp grub -h -H &&
+          while inotifywait -e delete_self -q /etc/ltsp/..data; do ltsp initrd && ltsp grub -h -H; done
+        env:
+        - name: TFTP_DIR
+          value: /shared
+        volumeMounts:
+        - mountPath: /etc/ltsp
+          name: config
+        - mountPath: /shared
+          name: shared
+
+      - name: http
+        image: kvaps/kubefarm-ltsp:v0.0.4
+        command:
+        - /bin/sh
+        - -c
+        - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
+          ln -sf /shared/ltsp/grub /srv/tftp/ltsp/grub &&
+          ln -sf /proc/self/fd/2 /var/log/nginx/error.log &&
+          ln -sf /proc/self/fd/2 /var/log/nginx/access.log && 
+          exec nginx -g "daemon off;"
+        readinessProbe:
+          httpGet:
+            path: /ltsp/grub/grub.cfg
+            port: 80
+            scheme: HTTP
+          periodSeconds: 10
+          initialDelaySeconds: 5
+        ports:
+        - containerPort: 80
+          name: http
+        volumeMounts:
+        - mountPath: /shared
+          name: shared
+
+      - name: tftp
+        image: kvaps/kubefarm-ltsp:v0.0.4
+        command:
+        - /bin/sh
+        - -c
+        - ln -sf /shared/ltsp/ltsp.img /srv/tftp/ltsp/ltsp.img &&
+          ln -sf /shared/ltsp/grub /srv/tftp/ltsp/grub &&
+          exec dnsmasq -d --port=0 --enable-tftp=eth0 --tftp-single-port --tftp-root=/srv/tftp
+        ports:
+        - containerPort: 69
+          name: tftp
+          protocol: UDP
+        volumeMounts:
+        - mountPath: /shared
+          name: shared
+
+      imagePullSecrets:
+      - name: regsecret
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      volumes:
+      - name: shared
+        emptyDir: {}
+
+      - name: config
+        projected:
+          sources:
+          - configMap:
+              name: {{ $fullName }}
+          - secret:
+              name: {{ $fullName }}-join-token
