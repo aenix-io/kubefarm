@@ -2,8 +2,8 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "ltsp.name" -}}
-{{- default "ltsp" .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "kubefarm.name" -}}
+{{- default "kubefarm" .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -18,6 +18,33 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "node.fullname" -}}
+{{- $name := default "node" .Values.nameOverride -}}
+{{- if eq (.Release.Name | upper) "RELEASE-NAME" -}}
+{{- $name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "kubefarm.dhcpOptionKey" -}}
+{{- if or (regexMatch "^[0-9]+$" .) (regexFind ":" .) -}}
+{{- . -}}
+{{- else -}}
+{{- if eq . "broadcast" -}}
+{{/* https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg14137.html */}}
+{{- "28" -}}
+{{- else -}}
+{{- printf "option:%s" . }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 
 
 {{- define "kubefarm.kubernetesLabels" -}}

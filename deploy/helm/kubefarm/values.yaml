@@ -114,7 +114,7 @@ tags:
     all:
       router: 	172.16.0.1
       dns-server: 8.8.8.8
-      broadcast: 172.16.255.255
+      broadcast: 172.16.0.255
       #domain-search: infra.example.org
 
   ltspOptions:

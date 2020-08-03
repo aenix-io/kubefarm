@@ -1,0 +1,29 @@
+{{- $fullName := include "node.fullname" . -}}
+{{- $ltspName := include "ltsp.fullname" . -}}
+{{- with .Values.tags.dhcpOptions }}
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DhcpOptions
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-options
+spec:
+  controller: ""
+  options:
+  {{- range $tag, $options := . }}
+    {{- range $key, $values := $options }}
+    - key: "{{ template "kubefarm.dhcpOptionKey" $key }}"
+      tags:
+        - {{ $ltspName }}
+        {{- if not (eq $tag "all") }}
+        - {{ $tag }}
+        {{- end }}
+      values:
+        {{- range $k, $v := split "," $values }}
+        - {{ $v }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
