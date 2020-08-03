@@ -1,0 +1,47 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+{{- with .Values.nodePools }}
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DhcpHosts
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-clients
+spec:
+  controller: ""
+  hosts:
+  {{- range $pool  := . }}
+    {{- $tags := .tags }}
+    {{- range $node := .nodes }}
+    - ip: {{ $node.ip }}
+      {{- if $node.mac }}
+      macs:
+        {{- range $k, $v := split "," $node.mac }}
+        - {{ $v | quote }}
+        {{- end }}
+      {{- end }}
+      clientIDs:
+      {{- if $node.clientID }}
+        {{- range $k, $v := split "," $node.clientID }}
+        - {{ $v | quote }}
+        {{- end }}
+      {{- else }}
+        - '*'
+      {{- end }}
+      {{- with $node.name }}
+      hostname: {{ . }}
+      {{- end }}
+      setTags:
+        - {{ $fullName | quote }}
+        {{- range $v := $tags }}
+        - {{ $v | quote }}
+        {{- end }}
+      {{- if $node.leaseTime }}
+      leaseTime: {{ $node.leaseTime }}
+      {{- else }}
+      leaseTime: infinite
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
