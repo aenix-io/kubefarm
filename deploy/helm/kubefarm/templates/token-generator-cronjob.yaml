@@ -1,4 +1,4 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: batch/v1beta1
 kind: CronJob

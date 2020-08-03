@@ -1,12 +1,12 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-ltsp-publisher
-  name: {{ $fullName }}-ltsp-publisher
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publisher
 rules:
 - apiGroups:
   - ""
@@ -15,8 +15,8 @@ rules:
   verbs:
   - '*'
   resourceNames:
-  - {{ $fullName }}-ltsp-tftp
-  - {{ $fullName }}-ltsp-http
+  - {{ $fullName }}-tftp
+  - {{ $fullName }}-http
 - apiGroups:
   - "dnsmasq.kvaps.cf"
   resources:
@@ -26,28 +26,28 @@ rules:
   - get
   - patch
   resourceNames:
-  - {{ $fullName }}-ltsp-ip
+  - {{ $fullName }}-ip
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-ltsp-publisher
-  name: {{ $fullName }}-ltsp-publisher
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publisher
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-ltsp-publisher
-  name: {{ $fullName }}-ltsp-publisher
+    app: {{ $fullName }}-publisher
+  name: {{ $fullName }}-publisher
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ $fullName }}-ltsp-publisher
+  name: {{ $fullName }}-publisher
 subjects:
 - kind: ServiceAccount
-  name: {{ $fullName }}-ltsp-publisher
+  name: {{ $fullName }}-publisher
   namespace: {{ .Release.Namespace }}

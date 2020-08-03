@@ -1,8 +1,11 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
   labels:
     app: {{ $fullName }}-token-generator
   name: {{ $fullName }}-token-create
@@ -18,9 +21,9 @@ spec:
         command: [ '/scripts/gentoken.sh' ]
         env:
         - name: SVC
-          value: {{ $fullName }}-apiserver
+          value: {{ template "kubernetes.fullname" . }}-apiserver
         - name: SECRET
-          value: {{ $fullName }}-ltsp-join-token
+          value: {{ $fullName }}-join-token
         imagePullPolicy: IfNotPresent
         resources:
           requests:
@@ -36,10 +39,10 @@ spec:
       - name: kubeconfig
         secret:
           defaultMode: 420
-          secretName: {{ $fullName }}-admin-conf
+          secretName: {{ template "kubernetes.fullname" . }}-admin-conf
       - name: scripts
         configMap:
-          name: {{ $fullName }}-ltsp-scripts
+          name: {{ $fullName }}-scripts
           defaultMode: 0777
       restartPolicy: OnFailure
       serviceAccountName: {{ $fullName }}-token-generator

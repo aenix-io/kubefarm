@@ -1,12 +1,12 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-ltsp
-  name: {{ $fullName }}-ltsp-scripts
+    app: {{ $fullName }}
+  name: {{ $fullName }}-scripts
 data:
   gentoken.sh: |+
     {{- .Files.Get "scripts/gentoken.sh" | nindent 4 }}

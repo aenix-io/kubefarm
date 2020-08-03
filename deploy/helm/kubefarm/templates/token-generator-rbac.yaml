@@ -1,4 +1,4 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -16,7 +16,7 @@ rules:
   - get
   - watch
   resourceNames:
-  - {{ $fullName }}-apiserver
+  - {{ template "kubernetes.fullname" . }}-apiserver
 - apiGroups:
   - ""
   resources:
@@ -25,7 +25,7 @@ rules:
   - get
   - patch
   resourceNames:
-  - {{ $fullName }}-ltsp-join-token
+  - {{ $fullName }}-join-token
 ---
 apiVersion: v1
 kind: ServiceAccount

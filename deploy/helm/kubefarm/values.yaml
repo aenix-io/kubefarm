@@ -15,8 +15,7 @@ kubernetes:
   apiserver:
     service:
       type: LoadBalancer
-      annotations:
-        metallb.universe.tf/allow-shared-ip: ltsp1
+      annotations: {}
 
 # ------------------------------------------------------------------------------
 # Kubeadm token generator
@@ -33,8 +32,7 @@ ltsp:
   publishDHCP: true
   service:
     type: LoadBalancer
-    annotations:
-      metallb.universe.tf/allow-shared-ip: ltsp1
+    annotations: {}
 
   config:
 

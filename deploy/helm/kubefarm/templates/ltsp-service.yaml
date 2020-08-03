@@ -1,4 +1,4 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: v1
 kind: Service
@@ -11,15 +11,15 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    app: {{ $fullName }}-ltsp
-  name: {{ $fullName }}-ltsp-http
+    app: {{ $fullName }}
+  name: {{ $fullName }}-http
 spec:
   #loadBalancerIP: 1.2.3.4
   ports:
   - name: http
     port: 80
   selector:
-    app: {{ $fullName }}-ltsp
+    app: {{ $fullName }}
   type: LoadBalancer
 ---
 apiVersion: v1
@@ -33,8 +33,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    app: {{ $fullName }}-ltsp
-  name: {{ $fullName }}-ltsp-tftp
+    app: {{ $fullName }}
+  name: {{ $fullName }}-tftp
 spec:
   #loadBalancerIP: 1.2.3.4
   ports:
@@ -42,5 +42,5 @@ spec:
     port: 69
     protocol: UDP
   selector:
-    app: {{ $fullName }}-ltsp
+    app: {{ $fullName }}
   type: LoadBalancer

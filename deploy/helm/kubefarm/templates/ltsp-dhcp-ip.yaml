@@ -1,11 +1,11 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: dnsmasq.kvaps.cf/v1beta1
 kind: DhcpOptions
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-ltsp
-  name: {{ $fullName }}-ltsp-ip
+    app: {{ $fullName }}
+  name: {{ $fullName }}-ip
 spec:
   controller: ""

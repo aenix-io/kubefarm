@@ -1,21 +1,21 @@
-{{- $fullName := include "kubernetes.fullname" . -}}
+{{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations: {}
   labels:
-    app: {{ $fullName }}-ltsp
-  name: {{ $fullName }}-ltsp
+    app: {{ $fullName }}
+  name: {{ $fullName }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ $fullName }}-ltsp
+      app: {{ $fullName }}
   template:
     metadata:
       labels:
-        app: {{ $fullName }}-ltsp
+        app: {{ $fullName }}
     spec:
       containers:
 
@@ -91,6 +91,6 @@ spec:
         projected:
           sources:
           - configMap:
-              name: {{ $fullName }}-ltsp
+              name: {{ $fullName }}
           - secret:
-              name: {{ $fullName }}-ltsp-join-token
+              name: {{ $fullName }}-join-token
