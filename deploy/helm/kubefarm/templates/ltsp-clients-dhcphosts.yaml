@@ -21,13 +21,8 @@ spec:
         - {{ $v | quote }}
         {{- end }}
       {{- end }}
-      clientIDs:
-      {{- if $node.clientID }}
-        {{- range $k, $v := split "," $node.clientID }}
-        - {{ $v | quote }}
-        {{- end }}
-      {{- else }}
-        - '*'
+      {{- with $node.clientID }}
+      clientID: {{ . }}
       {{- end }}
       {{- with $node.name }}
       hostname: {{ . }}
