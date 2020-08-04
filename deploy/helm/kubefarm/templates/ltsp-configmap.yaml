@@ -148,7 +148,7 @@ data:
     [{{ $n.name }}]
     {{- end }}
     {{- range $t := $p.tags }}
-    INCLIDE={{ printf "tag_%s" $t | quote }}
+    INCLUDE={{ printf "tag_%s" $t | quote }}
     {{- end }}
     {{- end }}
     {{- end }}
