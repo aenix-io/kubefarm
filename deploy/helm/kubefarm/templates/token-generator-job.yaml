@@ -15,16 +15,20 @@ spec:
       labels:
         app: {{ $fullName }}-token-generator
     spec:
+      {{- with .Values.kubernetes.admin.image.PullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 10 }}
+      {{- end }}
       containers:
       - name: kubeadm
-        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        image: {{ .Values.kubernetes.admin.image.repository }}:{{ .Values.kubernetes.admin.image.tag }}
+        imagePullPolicy: {{ .Values.kubernetes.admin.image.PullPolicy }}
         command: [ '/scripts/gentoken.sh' ]
         env:
         - name: SVC
           value: {{ template "kubernetes.fullname" . }}-apiserver
         - name: SECRET
           value: {{ $fullName }}-join-token
-        imagePullPolicy: IfNotPresent
         resources:
           requests:
             cpu: 100m

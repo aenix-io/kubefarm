@@ -17,10 +17,15 @@ spec:
       labels:
         app: {{ $fullName }}
     spec:
+      {{- with .Values.ltsp.image.PullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 10 }}
+      {{- end }}
       containers:
 
       - name: config
-        image: kvaps/kubefarm-ltsp:v0.0.4
+        image: {{ .Values.ltsp.image.repository }}:{{ .Values.ltsp.image.tag }}
+        imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
         command:
         - /bin/sh
         - -c
@@ -37,7 +42,8 @@ spec:
           name: shared
 
       - name: http
-        image: kvaps/kubefarm-ltsp:v0.0.4
+        image: {{ .Values.ltsp.image.repository }}:{{ .Values.ltsp.image.tag }}
+        imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
         command:
         - /bin/sh
         - -c
@@ -61,7 +67,8 @@ spec:
           name: shared
 
       - name: tftp
-        image: kvaps/kubefarm-ltsp:v0.0.4
+        image: {{ .Values.ltsp.image.repository }}:{{ .Values.ltsp.image.tag }}
+        imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
         command:
         - /bin/sh
         - -c

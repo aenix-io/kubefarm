@@ -15,9 +15,14 @@ spec:
       labels:
         app: {{ $fullName }}-publisher
     spec:
+      {{- with .Values.kubernetes.admin.image.PullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 10 }}
+      {{- end }}
       containers:
       - name: kubeadm
-        image: docker.io/kvaps/kubernetes-tools:v0.0.1
+        image: {{ .Values.kubernetes.admin.image.repository }}:{{ .Values.kubernetes.admin.image.tag }}
+        imagePullPolicy: {{ .Values.kubernetes.admin.image.PullPolicy }}
         command: [ '/scripts/publiship.sh' ]
         env:
         - name: SVC1

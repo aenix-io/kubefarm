@@ -31,6 +31,13 @@ tokenGenerator:
 # ------------------------------------------------------------------------------
 ltsp:
   publishDHCP: true
+
+  image:
+    repository: docker.io/kvaps/kubefarm-ltsp
+    tag: v0.0.4
+    PullPolicy: IfNotPresent
+    PullSecrets: []
+
   service:
     type: LoadBalancer
     annotations: {}
