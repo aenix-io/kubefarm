@@ -2,73 +2,135 @@
 Kubefarm
 ========
 
-<img align="left" src="https://avatars1.githubusercontent.com/u/68351149?s=150&u=b8b4cb0f364281274159d4098090c0e229370cf0">
-
----
+<img align=left src="https://avatars1.githubusercontent.com/u/68351149?s=150&u=b8b4cb0f364281274159d4098090c0e229370cf0">
 
 Kubefarm combines everything need to spawn multiple Kubernetes-in-Kubernetes clusters and network booting configuration to simple bootstrap the physical servers from the scratch.
 
 The project goals is to provide simple and unified way for deploying Kubernetes on bare metal.
 
----
+<p align="center">
+<img src="https://gist.githubusercontent.com/kvaps/c969930f561b24c1f4c09802d5e225c8/raw/6347f81814d1eb56ccd2d4cbdb2a8617965cfa9d/kubefarm.png">
+</p>
 
-## Components
+## Why
 
-- **[Kubernetes-in-Kubernetes](https://github.com/kvaps/kubernetes-in-kubernetes)** - Kubernetes control-plane packed to Helm-chart
-- **[Dnsmasq-controller](https://github.com/kvaps/dnsmasq-controller)** - DNS and DHCP service
-- **[LTSP](https://github.com/ltsp/ltsp)** - Allows to boot OS over the network
+#### Fast & Simple
 
-*optional:*
+There is no installation process as such, you just run your physical servers from scratch, during the boot they download the system image over the network and run it similar docker containers with overlayfs root.
 
-- **[kube-fencing](https://github.com/kvaps/kube-fencing)** - Fencing implementation, kills the failed nodes and cleans up the resources.
-- **[kube-linstor](https://github.com/kvaps/kube-linstor)** - A storage orchestration platform and csi-driver for it.
-- **[metallb](https://github.com/metallb/metallb)** - A network load-balancer implementation for Kubernetes.
+You don't have to think about redundancy and performing the updates for your OS anymore. Simple reboot is enough to apply new image.
 
-## Cluster Preparation
+#### Declarative
 
-* [Deploy three-node Kubernetes cluster](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/)
+You can spawn new Kubernetes clusters and PXE-servers using Helm very quickly, just providing all the parameters in simple Yaml form.
 
-* Deploy cert-manager
+#### Customizable
 
-      kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.2/cert-manager.yaml
+You can build your own image for the physical servers simple using [Dockerfile]. The default image is based on Ubuntu. You can put there anything need, simple add any additional packages and custom kernel modules.
 
-* Deploy local-path-provisioner
+[Dockerfile]: https://github.com/kvaps/kubefarm/blob/master/build/ltsp/Dockerfile
 
-      kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-
-* Deploy dnsmasq-controller for DHCP
-
-      kubectl create namespace dnsmasq
-      kubectl create -n dnsmasq clusterrolebinding dnsmasq-controller --clusterrole dnsmasq-controller --serviceaccount dnsmasq:dnsmasq-controller
-      kubectl create -n dnsmasq rolebinding dnsmasq-controller-leader-election --role dnsmasq-controller-leader-election --serviceaccount dnsmasq:dnsmasq-controller
-      kubectl apply -n dnsmasq \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/crd/bases/dnsmasq.kvaps.cf_dhcphosts.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/crd/bases/dnsmasq.kvaps.cf_dhcpoptions.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/crd/bases/dnsmasq.kvaps.cf_dnshosts.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/crd/bases/dnsmasq.kvaps.cf_dnsmasqoptions.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/rbac/service_account.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/rbac/role.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/rbac/leader_election_role.yaml \
-        -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/controller/dhcp-server.yaml
-      kubectl label node --all node-role.kubernetes.io/dnsmasq=
-
-* Deploy platform matchers
+#### Known components
 
 
+Whole setup consist of few known components:
 
-* Deploy MetalLB
+- **[Kubernetes-in-Kubernetes]** - Kubernetes control-plane packed to Helm-chart, it is based on official Kubernetes static pod manifests and using the official Kubernetes docker images.
+- **[Dnsmasq-controller]** - simple wrapper for Dnsmasq which automates the configuration using Kubernetes CRDs and perform leader-election for the DHCP high availability.
+- **[LTSP]** - network booting server and boot time configuration framework for the clients written in shell. It allows to boot OS over the network directly to RAM and perform initial initial configuration for each server.
 
-      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
-      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/metallb.yaml
-      kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+[Kubernetes-in-Kubernetes]: https://github.com/kvaps/kubernetes-in-kubernetes
+[Dnsmasq-controller]: https://github.com/kvaps/dnsmasq-controller
+[LTSP]: https://github.com/ltsp/ltsp
+
+## Preparation
+
+There is a number of dependencies needed to make kubefarm working:
+
+* **[Kubernetes]**
+
+  The parent Kubernetes cluster is required to deploy Kubernetes-in-Kubernetes control-planes and network booting servers there. You need to deploy new Kubernetes cluster using your favorite installation method, you can use [kubespray] or [kubeadm] for example.
+  
+  [kubespray]: https://github.com/kubernetes-sigs/kubespray
+  [kubeadm]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+
+
+* **[Cert-manager]**
+
+  The cert-manager performs the certificates issuing for Kubernetes-in-Kubernetes and its etcd-cluster.
+  
+  ```bash
+  kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.2/cert-manager.yaml
+  ```
+  
+* **[Local Path Provisioner]**
+
+  You need an automated persistent volumes management for your cluster, local-path-provisioner is simpliest way to achieve that.
+
+  ```bash
+  kubectl apply -f https://github.com/rancher/local-path-provisioner/raw/master/deploy/local-path-storage.yaml
+  ```
+
+  Optionaly any other csi-driver can be used.
+  
+* **[MetalLB]**
+
+  You also need an automated external IP-addresses management, MetalLB is providing this opportunity.
+  
+  ```bash
+  kubectl apply -f https://github.com/metallb/metallb/raw/v0.9.3/manifests/namespace.yaml
+  kubectl apply -f https://github.com/metallb/metallb/raw/v0.9.3/manifests/metallb.yaml
+  kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+  ```
+    
+  Also [configure MetalLB Layer 2 address range](https://metallb.universe.tf/configuration/#layer-2-configuration) after the installation.  
+
+  These IP-addresses will be used for the child Kubernetes clusters and network booting servers.
+
+* **[Dnsmasq-controller]**
+
+  High available DHCP-server wrapper allows to configure DHCP leases over Kubernetes. Additional DNS-server mode is allowed.
+
+  ```bash
+  kubectl create namespace dnsmasq
+  kubectl create -n dnsmasq clusterrolebinding dnsmasq-controller --clusterrole dnsmasq-controller --serviceaccount dnsmasq:dnsmasq-controller
+  kubectl create -n dnsmasq rolebinding dnsmasq-controller-leader-election --role dnsmasq-controller-leader-election --serviceaccount dnsmasq:dnsmasq-controller
+  kubectl apply -n dnsmasq \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcphosts.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcpoptions.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dnshosts.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dnsmasqoptions.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/rbac/service_account.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/rbac/role.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/rbac/leader_election_role.yaml \
+    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/controller/dhcp-server.yaml
+  kubectl label node --all node-role.kubernetes.io/dnsmasq=
+  ```
+  
+You also need to deploy basic platform matchers for DHCP, they allows to detect the clients architecture (PC or EFI) to allow sending proper bootloader binary.
+
+```bash
+kubectl apply -n dnsmasq -f https://github.com/kvaps/kubefarm/raw/master/deploy/dhcp-platform-matchers.yaml
+```
+
+[Kubernetes]: https://kubernetes.io/
+[Cert-manager]: https://cert-manager.io
+[Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
+[MetalLB]: https://metallb.universe.tf
+[Dnsmasq-controller]: https://github.com/kvaps/dnsmasq-controller
+
+
 
 ## Quick Start
 
-TODO
+Spawn new cluster:
 
-## Author
-
-* [Kubefarm Authors](graphs/contributors)
+```bash
+git clone --recurse-submodules https://github.com/kvaps/kubefarm
+cp kubefarm/deploy/helm/kubefarm/values.yaml .
+vim values.yaml
+helm upgrade --install cluster1 kubefarm/deploy/helm/kubefarm -f values.yaml --wait
+```
 
 ## License
 
