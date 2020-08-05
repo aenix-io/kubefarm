@@ -1,0 +1,17 @@
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DnsmasqOptions
+metadata:
+  annotations: {}
+  labels: {}
+  name: dhcp-platform-matchers
+spec:
+  controller: ""
+  options:
+  - key: dhcp-match
+    values: [set:iPXE,"17","39"]
+  - key: dhcp-match
+    values: [set:X86PC,option:client-arch,"0"]
+  - key: dhcp-match
+    values: [set:X86-64_EFI,option:client-arch,"7"]
+  - key: dhcp-match
+    values: [set:X86-64_EFI,option:client-arch,"9"]

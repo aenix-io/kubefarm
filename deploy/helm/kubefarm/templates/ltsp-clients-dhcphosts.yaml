@@ -27,11 +27,12 @@ spec:
       {{- with $node.name }}
       hostname: {{ . }}
       {{- end }}
+      {{- with $tags }}
       setTags:
-        - {{ $fullName | quote }}
-        {{- range $v := $tags }}
+        {{- range $v := . }}
         - {{ $v | quote }}
         {{- end }}
+      {{- end }}
       {{- if $node.leaseTime }}
       leaseTime: {{ $node.leaseTime }}
       {{- else }}

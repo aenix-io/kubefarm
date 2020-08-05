@@ -1,0 +1,36 @@
+{{- $fullName := include "ltsp.fullname" . -}}
+{{- with .Values.nodePools }}
+---
+apiVersion: dnsmasq.kvaps.cf/v1beta1
+kind: DnsmasqOptions
+metadata:
+  annotations: {}
+  labels:
+    app: {{ $fullName }}
+  name: {{ $fullName }}-clients
+spec:
+  controller: ""
+  {{- range $pool  := . }}
+  options:
+    {{ with .range }}
+    - key: "dhcp-range"
+      values:
+        - "set:{{ $fullName }}"
+        {{- range $k, $v := split "," . }}
+        {{- if regexFind "^set:" $v }}
+        {{- fail (printf "\"%s\" is not allowed here" $v) }}
+        {{- end }}
+        - {{ $v | quote }}
+        {{- end }}
+    {{- end }}
+    {{- range $o := .extraOpts }}
+    {{- range $k, $v := $o }}
+    - key: "{{ $k }}"
+      values:
+        {{- range $k, $v := split "," $v }}
+        - {{ $v | replace "?" $fullName | quote }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

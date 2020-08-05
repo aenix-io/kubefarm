@@ -52,6 +52,10 @@ The project goals is to provide simple and unified way for deploying Kubernetes 
         -f https://raw.githubusercontent.com/kvaps/dnsmasq-controller/master/config/controller/dhcp-server.yaml
       kubectl label node --all node-role.kubernetes.io/dnsmasq=
 
+* Deploy platform matchers
+
+
+
 * Deploy MetalLB
 
       kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml

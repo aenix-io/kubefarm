@@ -22,6 +22,7 @@ kubernetes:
 # (tokens are needed to join nodes to the cluster)
 # ------------------------------------------------------------------------------
 tokenGenerator:
+  enabled: true
   tokenTtl: 24h0m0s
   schedule: "0 */12 * * *"
 
@@ -94,13 +95,37 @@ ltsp:
 # Nodes configuration
 # ------------------------------------------------------------------------------
 nodePools:
-  - nodes:
+  -
+    # DHCP range for the node pool, required for issuing leases.
+    # See --dhcp-range option syntax on dnsmasq-man page.
+    # Note: the range will automatically be appended with the set:{{ .Release.Name }}-ltsp option.
+    #
+    # examples:
+    #   172.16.0.0,static,infinite
+    #   172.16.0.1,172.16.0.100,255.255.255.0,172.16.0.255,1h
+    range: 172.16.0.0,static,infinite
+
+    # DHCP configuration for each node
+    nodes:
       - name: node1
         mac: 02:00:ac:10:00:0a
         ip: 172.16.0.10
+
+    # Extra tags applied to this node pool, tags may contain additional
+    # DHCP- and LTSP- options as well node labels and taints
     tags:
       - debug
-      #- foo
+        #- foo
+
+    # Extra Options for Dnsmasq. This section can be used to setup Circuit ID matching.
+    # Note: Symbol '?' will automatically be replaced by the '{{ .Release.Name }}-ltsp' tag.
+    extraOpts: []
+      #- dhcp-circuitid: "set:port_0,ge-0/0/0.0:staging"
+      #- dhcp-circuitid: "set:port_1,ge-0/0/1.0:staging"
+      #- dhcp-range: "set:?,tag:port_0,192.168.11.10,192.168.11.10,255.255.255.0"
+      #- dhcp-range: "set:?,tag:port_1,192.168.11.11,192.168.11.11,255.255.255.0"
+      #- tag-if: "set:bar,tag:?,tag:port_0"
+      #- tag-if: "set:bar,tag:?,tag:port_1"
 
 # ------------------------------------------------------------------------------
 # Extra options can be specified for each tag
