@@ -141,14 +141,16 @@ data:
     {{- range $n := $p.nodes }}
     {{- if $p.tags }}
     {{- if $n.mac }}
-    [{{ $n.mac }}]
+    {{- range $k, $v := split "," $n.mac }}
+    [{{ $v }}]
+    {{- include "kubefarm.includeTags" $p.tags | nindent 4 }}
+    {{- end }}
     {{- else if $.ip }}
     [{{ $n.ip }}]
+    {{- template "kubefarm.includeTags" $p.tags | nindent 4 }}
     {{- else }}
     [{{ $n.name }}]
-    {{- end }}
-    {{- range $t := $p.tags }}
-    INCLUDE={{ printf "tag_%s" $t | quote }}
+    {{- template "kubefarm.includeTags" $p.tags | nindent 4 }}
     {{- end }}
     {{- end }}
     {{- end }}

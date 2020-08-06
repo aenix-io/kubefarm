@@ -10,8 +10,8 @@ metadata:
   name: {{ $fullName }}-clients
 spec:
   controller: ""
-  {{- range $pool  := . }}
   options:
+  {{- range $pool  := . }}
     {{ with .range }}
     - key: "dhcp-range"
       values:

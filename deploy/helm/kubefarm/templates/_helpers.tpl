@@ -45,7 +45,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 {{- end -}}
 
-
+{{- define "kubefarm.includeTags" -}}
+{{- $local := dict "first" true -}}
+{{- range $t := . -}}
+{{- if not $local.first }}
+{{ end -}}
+{{ printf "INCLUDE=tag_%s" $t }}
+{{- $_ := set $local "first" false -}}
+{{- end -}}
+{{- end -}}
 
 {{- define "kubefarm.kubernetesLabels" -}}
 {{- $local := dict "first" true -}}
