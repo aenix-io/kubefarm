@@ -8,6 +8,9 @@
 # Kubernetes control-plane
 # ------------------------------------------------------------------------------
 kubernetes:
+  # See all available options for kubernetes-in-kubernetes chart on:
+  # https://github.com/kvaps/kubernetes-in-kubernetes/blob/master/deploy/helm/kubernetes/values.yaml
+
   persistence:
     enabled: true
     storageClassName: local-path
@@ -16,6 +19,12 @@ kubernetes:
     service:
       type: LoadBalancer
       annotations: {}
+
+  # Specify external endpoints here to have an oportunity to the Kubernetes cluster externaly
+  #certSANs:
+  #  ipAddresses: []
+  #  dnsNames:
+  #  - mycluster.example.org
 
 # ------------------------------------------------------------------------------
 # Kubeadm token generator
@@ -110,19 +119,19 @@ nodePools:
     # examples:
     #   172.16.0.0,static,infinite
     #   172.16.0.1,172.16.0.100,255.255.255.0,172.16.0.255,1h
-    range: 172.16.0.0,static,infinite
+    range: ""
 
     # DHCP configuration for each node
-    nodes:
-      - name: node1
-        mac: 02:00:ac:10:00:0a
-        ip: 172.16.0.10
+    nodes: []
+      #- name: node1
+      #  mac: 02:00:ac:10:00:0a
+      #  ip: 172.16.0.10
 
     # Extra tags applied to this node pool, tags may contain additional
     # DHCP- and LTSP- options as well node labels and taints
     tags:
-      - debug
-        #- foo
+      #- debug
+      #- foo
 
     # Extra Options for Dnsmasq. This section can be used to setup Circuit ID matching.
     # Note: Symbol '?' will automatically be replaced by the '{{ .Release.Name }}-ltsp' tag.
@@ -143,9 +152,9 @@ tags:
     # dnsmasq options
     # see all available options list (https://git.io/JJ0dH)
     all:
-      router: 	172.16.0.1
-      dns-server: 8.8.8.8
-      broadcast: 172.16.0.255
+      #router: 172.16.0.1
+      #dns-server: 8.8.8.8
+      #broadcast: 172.16.0.255
       #domain-search: infra.example.org
 
   ltspOptions:
