@@ -54,6 +54,11 @@ There is a number of dependencies needed to make kubefarm working:
   [kubespray]: https://github.com/kubernetes-sigs/kubespray
   [kubeadm]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
 
+  You might want untaint master nodes to allow run workload on them
+
+  ```bash
+  kubectl taint nodes --all node-role.kubernetes.io/master-
+  ```
 
 * **[Cert-manager]**
 
