@@ -1,3 +1,4 @@
+{{- if .Values.tokenGenerator.enabled }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: batch/v1beta1
@@ -12,3 +13,4 @@ spec:
     spec:
       template:
         {{- (include (print $.Template.BasePath "/token-generator-job.yaml") . | fromYaml ).spec.template | toYaml | nindent 8 }}
+{{- end }}

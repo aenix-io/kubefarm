@@ -1,3 +1,4 @@
+{{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: dnsmasq.kvaps.cf/v1beta1
@@ -27,3 +28,4 @@ spec:
     - X86-64_EFI
     values:
     - ltsp/grub/x86_64-efi/core.efi
+{{- end }}

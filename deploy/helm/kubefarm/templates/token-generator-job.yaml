@@ -1,3 +1,4 @@
+{{- if .Values.tokenGenerator.enabled }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: batch/v1
@@ -50,3 +51,4 @@ spec:
           defaultMode: 0777
       restartPolicy: OnFailure
       serviceAccountName: {{ $fullName }}-token-generator
+{{- end }}

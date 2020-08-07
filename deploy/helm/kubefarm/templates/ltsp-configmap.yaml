@@ -1,3 +1,4 @@
+{{- if .Values.ltsp.enabled }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: v1
@@ -167,3 +168,4 @@ data:
     {{ $k }}={{ $v }}
     {{- end }}
   {{- end }}
+{{- end }}

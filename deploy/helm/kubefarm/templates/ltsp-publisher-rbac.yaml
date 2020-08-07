@@ -1,3 +1,4 @@
+{{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -51,3 +52,4 @@ subjects:
 - kind: ServiceAccount
   name: {{ $fullName }}-publisher
   namespace: {{ .Release.Namespace }}
+{{- end }}

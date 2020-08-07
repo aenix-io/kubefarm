@@ -1,3 +1,4 @@
+{{- if and .Values.ltsp.enabled .Values.ltsp.service.enabled }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: v1
@@ -44,3 +45,4 @@ spec:
   selector:
     app: {{ $fullName }}
   type: LoadBalancer
+{{- end }}

@@ -39,17 +39,30 @@ tokenGenerator:
 # Network boot server configuration
 # ------------------------------------------------------------------------------
 ltsp:
-  publishDHCP: true
-
+  enabled: true
   image:
     repository: docker.io/kvaps/kubefarm-ltsp
     tag: v0.0.4
     PullPolicy: IfNotPresent
     PullSecrets: []
+  replicaCount: 1
 
+  publishDHCP: true
   service:
+    enabled: true
     type: LoadBalancer
+    labels: {}
     annotations: {}
+
+  labels: {}
+  annotations: {}
+  podLabels: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  sidecars: []
+  extraVolumes: []
 
   config:
 
@@ -57,14 +70,14 @@ ltsp:
     disableAutoupdate: true
 
     # from /usr/share/zoneinfo/<timezone> (eg. Europe/Moscow)
-    timezone: UTC
+    #timezone: UTC
 
     # SSH-keys authorized to access the nodes
     sshAuthorizedKeys: []
       #- ssh-rsa AAAAB3N...
 
     # Hashed password for root, use `openssl passwd -1` to generate one
-    rootPasswd: $1$jaKnTiEb$IhpsNUfssXQ8eQg8orald0 # hackme
+    #rootPasswd: $1$jaKnTiEb$IhpsNUfssXQ8eQg8orald0 # hackme
 
     # Sysctl setting for the nodes
     sysctls:
@@ -106,6 +119,13 @@ ltsp:
       #   [Manager]
       #   SystemMaxUse=200M
       #   RuntimeMaxUse=200M
+
+    # Optionaly you might want to map additional ConfigMaps or Secrets 
+    # they will be projected to /etc/ltsp drirectory
+    extraProjectedItems: []
+      #- secret:
+      #    name: ipa-join-token
+
 
 # ------------------------------------------------------------------------------
 # Nodes configuration

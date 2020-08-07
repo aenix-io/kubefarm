@@ -1,3 +1,4 @@
+{{- if or .Values.tokenGenerator.enabled (and .Values.ltsp.enabled .Values.ltsp.publishDHCP) }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: v1
@@ -8,7 +9,12 @@ metadata:
     app: {{ $fullName }}
   name: {{ $fullName }}-scripts
 data:
+  {{- if .Values.tokenGenerator.enabled }}
   gentoken.sh: |+
     {{- .Files.Get "scripts/gentoken.sh" | nindent 4 }}
+  {{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP }}
+  {{- end }}
   publiship.sh: |+
     {{- .Files.Get "scripts/publiship.sh" | nindent 4 }}
+  {{- end }}
+{{- end }}

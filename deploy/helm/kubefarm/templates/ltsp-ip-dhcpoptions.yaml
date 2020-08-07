@@ -1,3 +1,4 @@
+{{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: dnsmasq.kvaps.cf/v1beta1
@@ -9,3 +10,4 @@ metadata:
   name: {{ $fullName }}-ip
 spec:
   controller: ""
+{{- end }}

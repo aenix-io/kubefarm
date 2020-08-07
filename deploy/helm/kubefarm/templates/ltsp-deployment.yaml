@@ -1,3 +1,4 @@
+{{- if .Values.ltsp.enabled }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: apps/v1
@@ -6,9 +7,16 @@ metadata:
   annotations: {}
   labels:
     app: {{ $fullName }}
+    {{- with .Values.ltsp.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.ltsp.annotations }}
+    annotations:
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   name: {{ $fullName }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.ltsp.replicaCount }}
   selector:
     matchLabels:
       app: {{ $fullName }}
@@ -16,7 +24,26 @@ spec:
     metadata:
       labels:
         app: {{ $fullName }}
+        {{- with .Values.ltsp.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.ltsp.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
+      {{- with .Values.ltsp.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ltsp.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ltsp.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.ltsp.image.PullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 10 }}
@@ -83,13 +110,10 @@ spec:
         - mountPath: /shared
           name: shared
 
-      imagePullSecrets:
-      - name: regsecret
-      nodeSelector:
-        node-role.kubernetes.io/master: ""
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
+      {{- with .Values.ltsp.sidecars }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+
       volumes:
       - name: shared
         emptyDir: {}
@@ -99,5 +123,14 @@ spec:
           sources:
           - configMap:
               name: {{ $fullName }}
+          {{- if .Values.tokenGenerator.enabled }}
           - secret:
               name: {{ $fullName }}-join-token
+          {{- end }}
+          {{- with .Values.ltsp.extraProjectedItems }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+      {{- with .Values.ltsp.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+{{- end }}

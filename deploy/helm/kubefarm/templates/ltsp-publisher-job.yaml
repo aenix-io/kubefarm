@@ -1,3 +1,4 @@
+{{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: batch/v1
@@ -48,3 +49,4 @@ spec:
           defaultMode: 0777
       restartPolicy: OnFailure
       serviceAccountName: {{ $fullName }}-publisher
+{{- end }}
