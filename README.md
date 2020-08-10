@@ -49,10 +49,10 @@ There is a number of dependencies needed to make kubefarm working:
 
 * **[Kubernetes]**
 
-  The parent Kubernetes cluster is required to deploy Kubernetes-in-Kubernetes control-planes and network booting servers there. You need to deploy new Kubernetes cluster using your favorite installation method, you can use [kubespray] or [kubeadm] for example.
+  The parent Kubernetes cluster is required to deploy Kubernetes-in-Kubernetes control-planes and network booting servers there. You need to deploy new Kubernetes cluster using your favorite installation method, you can use [kubeadm] or [kubespray] for example.
   
-  [kubespray]: https://github.com/kubernetes-sigs/kubespray
   [kubeadm]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
+  [kubespray]: https://github.com/kubernetes-sigs/kubespray
 
   You might want untaint master nodes to allow run workload on them
 
@@ -136,6 +136,26 @@ cp kubefarm/deploy/helm/kubefarm/values.yaml .
 vim values.yaml
 helm upgrade --install cluster1 kubefarm/deploy/helm/kubefarm -f values.yaml --wait
 ```
+
+## Usage
+
+You can access your newly deployed cluster very quickly:
+
+```bash
+kubectl exec -ti `kubectl get pod -l app=cluster1-kubernetes-admin -o name` -- sh
+```
+
+#### External clients
+
+To achieve that you need to specify correct hostname or IP-address for `kubernetes.certSANs` in your [`values.yaml`](deploy/helm/kubefarm/values.yaml).
+
+Now you can get kubeconfig for your cluster:
+
+```bash
+kubectl get secret cluster1-kubernetes-admin-conf -o go-template='{{index .data "admin.conf" | base64decode }}'
+```
+
+you only need to correct the server address in it.
 
 ## License
 
