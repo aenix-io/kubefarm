@@ -147,7 +147,7 @@ kubectl exec -ti `kubectl get pod -l app=cluster1-kubernetes-admin -o name` -- s
 
 #### External clients
 
-To achieve that you need to specify correct hostname or IP-address for `kubernetes.certSANs` in your [`values.yaml`](deploy/helm/kubefarm/values.yaml).
+To achieve that you need to specify correct hostname or IP-address for `kubernetes.apiserver.certSANs` in your [`values.yaml`](deploy/helm/kubefarm/values.yaml) file.
 
 Now you can get kubeconfig for your cluster:
 

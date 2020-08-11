@@ -20,11 +20,11 @@ kubernetes:
       type: LoadBalancer
       annotations: {}
 
-  # Specify external endpoints here to have an oportunity to the Kubernetes cluster externaly
-  #certSANs:
-  #  ipAddresses: []
-  #  dnsNames:
-  #  - mycluster.example.org
+    # Specify external endpoints here to have an oportunity to the Kubernetes cluster externaly
+    #certSANs:
+    #  ipAddresses: []
+    #  dnsNames:
+    #  - mycluster.example.org
 
 # ------------------------------------------------------------------------------
 # Kubeadm token generator
