@@ -22,9 +22,12 @@ kubernetes:
 
     # Specify external endpoints here to have an oportunity to the Kubernetes cluster externaly
     #certSANs:
-    #  ipAddresses: []
+    #  ipAddresses:
+    #  - 10.9.8.10
     #  dnsNames:
     #  - mycluster.example.org
+    #extraArgs:
+    #  advertise-address: 10.9.8.10
 
 # ------------------------------------------------------------------------------
 # Kubeadm token generator
