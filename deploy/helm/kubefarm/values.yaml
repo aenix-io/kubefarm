@@ -45,7 +45,7 @@ ltsp:
   enabled: true
   image:
     repository: docker.io/kvaps/kubefarm-ltsp
-    tag: v0.0.4
+    tag: v0.0.5
     PullPolicy: IfNotPresent
     PullSecrets: []
   replicaCount: 1

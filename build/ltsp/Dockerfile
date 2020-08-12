@@ -4,7 +4,7 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ARG VERSION=v0.0.4
+ARG VERSION=v0.0.5
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install updates and LTSP package
@@ -55,7 +55,6 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' \
       ifenslave \
       initramfs-tools \
       ipset \
-      iptraf \
       ipvsadm \
       jnettop \
       jq \
