@@ -125,7 +125,7 @@ spec:
               name: {{ $fullName }}
           {{- if .Values.tokenGenerator.enabled }}
           - secret:
-              name: {{ $fullName }}-join-token
+              name: {{ $fullName }}-join-config
           {{- end }}
           {{- with .Values.ltsp.extraProjectedItems }}
           {{- toYaml . | nindent 10 }}

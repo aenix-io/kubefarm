@@ -22,7 +22,11 @@ fi
 
 echo "Acquiring token"
 kubeadm --kubeconfig /etc/kubernetes/admin.conf token create --description kubefarm --print-join-command > /tmp/token
-CONFIG=$(printf "IP=%s\nHOSTNAME=%s\nJOIN_COMMAND=%s\n" "$IP" "$(awk -F'[ :]' '{print $3}' /tmp/token)" "$(cat /tmp/token)")
+CONFIG=$(cat <<EOT
+HOSTS_KUBERNETES="${IP} $(awk -F'[ :]' '{print $3}' /tmp/token)"
+JOIN_COMMAND="$(cat /tmp/token)"
+EOT
+)
 CONFIG_BASE64=$(echo "$CONFIG" | base64 | tr -d '\n')
 
-kubectl patch secret "$SECRET" --type merge -p="{\"data\":{\"kubeadm-join.env\":\"$CONFIG_BASE64\"}}"
+kubectl patch secret "$SECRET" --type merge -p="{\"data\":{\"kubeadm-join.conf\":\"$CONFIG_BASE64\"}}"

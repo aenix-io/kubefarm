@@ -28,8 +28,7 @@ data:
 
     [Service]
     Type=oneshot
-    EnvironmentFile=/etc/ltsp/kubeadm-join.env
-    ExecStartPre=/bin/sh -c "test -n '${HOSTNAME}' && sed -e '/ ${HOSTNAME}/d' -e '$a${IP} ${HOSTNAME}' -i /etc/hosts"
+    EnvironmentFile=/etc/ltsp/kubeadm-join.conf
     ExecStart=/bin/sh -c "exec ${JOIN_COMMAND}"
     Restart=on-failure
 
@@ -37,6 +36,7 @@ data:
     WantedBy=multi-user.target
   ltsp.conf: |
     [common]
+    PRE_INIT_KUBERNETES_HOSTS=". /etc/ltsp/kubeadm-join.conf"
     {{- range $k, $v := .Values.ltsp.config.options }}
     {{ $k }}={{ $v | quote }}
     {{- end }}
@@ -90,6 +90,7 @@ data:
     done
 
     # Setup kubelet extraArgs
+    mkdir -p /etc/systemd/system/kubelet.service.d
     ( LABELS=$(echo_values "KUBERNETES_LABELS_[[:alnum:]_]*" | paste -s -d,)
       TAINTS=$(echo_values "KUBERNETES_TAINTS_[[:alnum:]_]*" | paste -s -d,)
       printf "[Service]\nEnvironment=\"KUBELET_EXTRA_ARGS=%s %s\"\n" \
