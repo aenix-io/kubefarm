@@ -4,7 +4,7 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ARG VERSION=v0.0.5
+ENV VERSION=v0.0.6
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install updates and LTSP package
@@ -88,11 +88,6 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' \
 RUN systemctl disable systemd-resolved.service \
  && systemctl mask systemd-resolved.service
 
-# Allow boot without root= specified
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=962509
-RUN sed -i 's/panic "No root device specified.*/return/' /usr/share/initramfs-tools/scripts/local \
- && update-initramfs -u
-
 # Install docker
 ARG DOCKER_VERSION=19.03
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
@@ -162,6 +157,7 @@ FROM ltsp as builder
 RUN apt-get -y update \
  && apt-get -y install \
       git \
+      golang \
       build-essential \
       squashfs-tools \
  && apt-get clean \
@@ -178,6 +174,13 @@ RUN git clone git://thekelleys.org.uk/dnsmasq.git \
 COPY --from=rootfs / /rootfs
 COPY --from=modules /lib/modules/ /rootfs/lib/modules/
 #COPY --from=modules /boot/ /rootfs/boot/
+
+# Build ssh-keydgen
+ARG KEYDGEN_VERSION=v0.4.1-0-gac18196
+RUN go get -d -u github.com/cornfeedhobo/ssh-keydgen \
+ && cd /root/go/src/github.com/cornfeedhobo/ssh-keydgen \
+ && git checkout ${KEYDGEN_VERSION} \
+ && GOOS=linux go build -ldflags="-s -w" -o /rootfs/usr/bin/ssh-keydgen
 
 # Generate motd
 COPY motd /rootfs/etc/motd
