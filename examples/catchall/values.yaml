@@ -1,0 +1,53 @@
+# ------------------------------------------------------------------------------
+# Kubernetes control-plane
+# ------------------------------------------------------------------------------
+kubernetes:
+
+  apiserver:
+    certSANs:
+      ipAddresses:
+      - 10.28.36.71
+    extraArgs:
+      advertise-address: 10.28.36.71
+
+# ------------------------------------------------------------------------------
+# Network boot server configuration
+# ------------------------------------------------------------------------------
+ltsp:
+
+  config:
+    # from /usr/share/zoneinfo/<timezone> (eg. Europe/Moscow)
+    timezone: Europe/Prague
+    # SSH-keys authorized to access the nodes
+    sshAuthorizedKeys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSdizJARrlcOWVYswKPYbQ3FMa2eLJeE1utgUH7sDcOCsbpQh+Pu09biGkvO3QYGmeRXf64rQDx8adSf1Y/AutVJ6b044GEYoGWrenAPnt2VKyu7IrPvLr+0QLTuPsUPhKQToxs84j7eJ+Yzaro6etM2aPMlCuqHv9ZWFda198YQT3xr8ceAk6+Ni/q5vw5FDkmKtGVNl2UXHKovFxnGOkwYaPUlizTnj4WpK8e4FUQ95p75IQulGWGkL5RTbABhyFDuiVlGlW71qit79EaZDO4WA1tkdXYIQauIHQ073/ogI3YBlkD1QDsLXobjDHDaD3XMXK7lePudUkhiUng225 id_rsa
+    # Hashed password for root, use `openssl passwd -1` to generate one
+    rootPasswd: $1$jaKnTiEb$IhpsNUfssXQ8eQg8orald0 # hackme
+    # Extra options for ltsp.conf
+    options:
+      DEBUG_SHELL: 1
+      MENU_TIMEOUT: 0
+      KERNEL_PARAMETERS: "forcepae console=tty1 console=ttyS0,9600n8"
+
+# ------------------------------------------------------------------------------
+# Nodes configuration
+# ------------------------------------------------------------------------------
+nodePools:
+    # <first_ip>,<last_ip>,<netmask>,<broadcast>,<lease_time>
+  - range: 10.28.72.10,10.28.72.250,255.255.0.0,10.28.255.255,12h
+    extraOpts:
+      # this option instructs to generate persistent hostnames based on mac-adderess
+    - dhcp-generate-names: "tag:?"
+    - dhcp-ignore-names: "tag:?"
+
+# ------------------------------------------------------------------------------
+# Extra options can be specified for each tag
+# ("all" options are aplicable for any node)
+# ------------------------------------------------------------------------------
+tags:
+  dhcpOptions:
+    # dnsmasq options
+    # see all available options list (https://git.io/JJ0dH)
+    all:
+      router: 	10.28.0.1
+      dns-server: 10.28.0.1
