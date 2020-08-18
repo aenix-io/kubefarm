@@ -177,7 +177,9 @@ RUN git clone git://thekelleys.org.uk/dnsmasq.git \
 # Copy client filesystem and kernel modules
 COPY --from=rootfs / /rootfs
 COPY --from=modules /lib/modules/ /rootfs/lib/modules/
-#COPY --from=modules /boot/ /rootfs/boot/
+
+# Generate initramfs with new modules
+RUN chroot /rootfs/ update-initramfs -u
 
 # Generate motd
 COPY motd /rootfs/etc/motd
