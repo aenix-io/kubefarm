@@ -1,4 +1,12 @@
 {{- $fullName := include "ltsp.fullname" . -}}
+{{- $hasOptions := false -}}
+{{- range .Values.nodePools }}
+{{- if or (hasKey . "range") (hasKey . "extraOpts") }}
+{{- $hasOptions = true -}}
+{{- end }}
+{{- end }}
+
+{{- if $hasOptions }}
 {{- with .Values.nodePools }}
 ---
 apiVersion: dnsmasq.kvaps.cf/v1beta1
@@ -33,4 +41,5 @@ spec:
     {{- end }}
     {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}
