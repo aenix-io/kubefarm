@@ -178,7 +178,7 @@ tags:
   dhcpOptions:
     # dnsmasq options
     # see all available options list (https://git.io/JJ0dH)
-    all:
+    all: {}
       #router: 172.16.0.1
       #dns-server: 8.8.8.8
       #broadcast: 172.16.0.255
@@ -186,8 +186,6 @@ tags:
 
   ltspOptions:
     all:
-      OMIT_FUNCTIONS: "pam_main mask_services_main"
-      POST_INIT_HOSTS: 'sed -i "s/^127.0.1.1/${IP_ADDRESS}/g" /etc/hosts'
       FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
       FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
     debug:

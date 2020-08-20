@@ -36,7 +36,9 @@ data:
     WantedBy=multi-user.target
   ltsp.conf: |
     [common]
+    OMIT_FUNCTIONS="pam_main mask_services_main config_network_manager"
     PRE_INIT_KUBERNETES_HOSTS=". /etc/ltsp/kubeadm-join.conf"
+    POST_INIT_HOSTS='sed -i "s/^127.0.1.1/${IP_ADDRESS}/g" /etc/hosts'
     {{- range $k, $v := .Values.ltsp.config.options }}
     {{ $k }}={{ $v | quote }}
     {{- end }}
@@ -168,5 +170,9 @@ data:
     {{- range $k, $v := . }}
     {{ $k }}={{ $v }}
     {{- end }}
+  {{- end }}
+
+  {{- with .Values.ltsp.config.extraFiles }}
+  {{- toYaml . | nindent 2 }}
   {{- end }}
 {{- end }}
