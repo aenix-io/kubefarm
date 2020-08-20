@@ -19,5 +19,5 @@ This setup illustrates the deployment of generic cluster with the static clients
 apply:
 
 ```
-helm upgrade --install generic ../../deploy/helm/kubefarm -f values.yaml --wait
+helm upgrade --install cluster1 ../../deploy/helm/kubefarm -f values.yaml --wait
 ```

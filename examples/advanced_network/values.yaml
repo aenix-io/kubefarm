@@ -1,0 +1,78 @@
+# ------------------------------------------------------------------------------
+# Network boot server configuration
+# ------------------------------------------------------------------------------
+ltsp:
+
+  config:
+
+    # Extra options for ltsp.conf
+    options:
+      POST_INIT_NETWORKING: ". /etc/ltsp/network.sh"
+
+    extraFiles:
+      network.sh: |
+        mask2cidr() {
+          nbits=0
+          IFS=.
+          for dec in $1 ; do
+            case $dec in
+              255) nbits=$((nbits+8));;
+              254) nbits=$((nbits+7));;
+              252) nbits=$((nbits+6));;
+              248) nbits=$((nbits+5));;
+              240) nbits=$((nbits+4));;
+              224) nbits=$((nbits+3));;
+              192) nbits=$((nbits+2));;
+              128) nbits=$((nbits+1));;
+              0);;
+              *) echo "Error: $dec is not recognised"; exit 1
+            esac
+          done
+          echo "$nbits"
+        }
+
+        set -e
+        # Load additional parameters
+        IPCONFIG_IPV4CIDR=$(mask2cidr $IPCONFIG_IPV4NETMASK)
+        DATA_IPV4ADDR=$(echo ${IPCONFIG_IPV4ADDR} | sed 's/^10\.28\./10.29./')
+
+        # Remove on-boot config
+        rm -rf /run/netplan
+
+        # Write new netplan config
+        mkdir -p /etc/netplan
+        cat >/etc/netplan/00-config.yaml <<EOT
+        network:
+          version: 2
+          renderer: networkd
+          ethernets:
+            eno1:
+              mtu: 9000
+              dhcp4: no
+              optional: true
+            eno1d1:
+              mtu: 9000
+              dhcp4: no
+              optional: true
+          bonds:
+            bond0:
+              mtu: 9000
+              dhcp4: no
+              macaddress: ${MAC_ADDRESS}
+              interfaces: [eno1, eno1d1]
+              parameters:
+                mode: 802.3ad
+                mii-monitor-interval: 100
+                down-delay: 200
+                up-delay: 200
+                lacp-rate: fast
+                transmit-hash-policy: layer3+4
+                ad-select: bandwidth
+              addresses: [${IPCONFIG_IPV4ADDR}/${IPCONFIG_IPV4CIDR}]
+              gateway4: ${IPCONFIG_IPV4GATEWAY}
+          vlans:
+            bond0.2:
+              addresses: [${DATA_IPV4ADDR}/${IPCONFIG_IPV4CIDR}]
+              id: 2
+              link: bond0
+        EOT
