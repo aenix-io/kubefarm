@@ -27,6 +27,7 @@ kubernetes:
     #  dnsNames:
     #  - mycluster.example.org
     #extraArgs:
+    #  # advertise-address is required for kube-proxy
     #  advertise-address: 10.9.8.10
 
 # ------------------------------------------------------------------------------
@@ -143,6 +144,8 @@ nodePools:
     # examples:
     #   172.16.0.0,static,infinite
     #   172.16.0.1,172.16.0.100,255.255.255.0,172.16.0.255,1h
+    #
+    # WARNING setting broadcast-address is required! (see: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg14137.html)
     range: ""
 
     # DHCP configuration for each node
