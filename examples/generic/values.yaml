@@ -1,0 +1,111 @@
+# ------------------------------------------------------------------------------
+# Kubernetes control-plane
+# ------------------------------------------------------------------------------
+kubernetes:
+  apiserver:
+    certSANs:
+      ipAddresses:
+      - 10.28.36.72
+      #dnsNames:
+      #- generic-cluster.example.org
+    extraArgs:
+      advertise-address: 10.28.36.72
+
+# ------------------------------------------------------------------------------
+# Network boot server configuration
+# ------------------------------------------------------------------------------
+ltsp:
+
+  config:
+
+    # from /usr/share/zoneinfo/<timezone> (eg. Europe/Moscow)
+    timezone: Europe/Prague
+
+    # SSH-keys authorized to access the nodes
+    sshAuthorizedKeys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSdizJARrlcOWVYswKPYbQ3FMa2eLJeE1utgUH7sDcOCsbpQh+Pu09biGkvO3QYGmeRXf64rQDx8adSf1Y/AutVJ6b044GEYoGWrenAPnt2VKyu7IrPvLr+0QLTuPsUPhKQToxs84j7eJ+Yzaro6etM2aPMlCuqHv9ZWFda198YQT3xr8ceAk6+Ni/q5vw5FDkmKtGVNl2UXHKovFxnGOkwYaPUlizTnj4WpK8e4FUQ95p75IQulGWGkL5RTbABhyFDuiVlGlW71qit79EaZDO4WA1tkdXYIQauIHQ073/ogI3YBlkD1QDsLXobjDHDaD3XMXK7lePudUkhiUng225 id_rsa
+
+    # Hashed password for root, use `openssl passwd -1` to generate one
+    rootPasswd: $1$jaKnTiEb$IhpsNUfssXQ8eQg8orald0 # hackme
+
+    # Modules to load during startup
+    modules:
+      - br_netfilter
+      - ip_vs
+      - ip_vs_rr
+      - ip_vs_wrr
+      - ip_vs_sh
+
+    # Extra options for ltsp.conf
+    options:
+      DEBUG_SHELL: 1
+      MENU_TIMEOUT: 0
+      KERNEL_PARAMETERS: "forcepae console=tty1 console=ttyS0,9600n8"
+
+# ------------------------------------------------------------------------------
+# Nodes configuration
+# ------------------------------------------------------------------------------
+nodePools:
+  -
+    # DHCP range for the node pool, required for issuing leases.
+    # See --dhcp-range option syntax on dnsmasq-man page.
+    # Note: the range will automatically be appended with the set:{{ .Release.Name }}-ltsp option.
+    #
+    # WARNING setting broadcast-address is required! (see: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg14137.html)
+    range: 10.28.0.0,static,255.255.0.0,10.28.0.0,infinite
+
+    # DHCP configuration for each node
+    nodes:
+      - name: m1c29
+        mac: 94:57:a5:d3:ec:f2,94:57:a5:d3:ec:f3
+        ip: 10.28.36.173
+      - name: m1c31
+        mac: 94:57:a5:d3:ef:92,94:57:a5:d3:ef:93
+        ip: 10.28.36.174
+      - name: m1c35
+        mac: 94:57:a5:d3:d9:de,94:57:a5:d3:d9:df
+        ip: 10.28.36.175
+      - name: m1c37
+        mac: 94:57:a5:d3:ed:ee,94:57:a5:d3:ed:ef
+        ip: 10.28.36.176
+      - name: m1c41
+        mac: 94:57:a5:d3:f3:9e,94:57:a5:d3:f3:9f
+        ip: 10.28.36.177
+
+  - nodes:
+      - name: m1c43
+        mac: 94:57:a5:d3:ee:5a,94:57:a5:d3:ee:5b
+        ip: 10.28.36.178
+    tags:
+      - debug
+      - foo
+
+# ------------------------------------------------------------------------------
+# Extra options can be specified for each tag
+# ("all" options are aplicable for any node)
+# ------------------------------------------------------------------------------
+tags:
+  dhcpOptions:
+    # dnsmasq options
+    # see all available options list (https://git.io/JJ0dH)
+    all:
+      router: 	10.28.0.1
+      dns-server: 10.28.0.1
+
+  ltspOptions:
+    debug:
+      DEBUG_SHELL: "1"
+
+  kubernetesLabels:
+    all: {}
+    foo:
+      label1: value1
+      label2: value2
+
+  kubernetesTaints:
+    all: {}
+    foo:
+      - effect: NoSchedule
+        key: foo
+        value: bar
+
