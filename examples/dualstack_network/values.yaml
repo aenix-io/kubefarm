@@ -1,0 +1,28 @@
+# ------------------------------------------------------------------------------
+# Kubernetes control-plane
+# ------------------------------------------------------------------------------
+kubernetes:
+  apiserver:
+    image:
+      tag: v1.19.0-rc.4
+    extraArgs:
+      feature-gates: IPv6DualStack=true
+      service-cluster-ip-range: 10.96.0.0/12,fd00:ffff::/112
+
+  controllerManager:
+    extraArgs:
+      feature-gates: IPv6DualStack=true
+
+  kubelet:
+    config:
+      featureGates:
+        IPv6DualStack: true
+
+  kubeProxy: 
+    enabled: false
+
+ltsp:
+  config:
+    options:
+      # workaround: https://github.com/cilium/cilium/issues/6320
+      POST_SERVICE_CILIUM_MASQ: ip6tables -t nat -A POSTROUTING ! -o cilium_+ -s fd00::/104 -j MASQUERADE
