@@ -1,6 +1,6 @@
-# Catchall cluster
+# Generic cluster
 
-This setup illustrates the deployment of generic cluster with the static clients.
+This setup illustrates the deployment of typical cluster with the static clients.
 
 #### Deploying
 

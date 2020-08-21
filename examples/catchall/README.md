@@ -1,6 +1,6 @@
 # Catchall cluster
 
-This setup illustrates the deployment of catchall cluster with tje dynamic DHCP-range.  
+This setup illustrates the deployment of catchall cluster with the dynamic DHCP-range.  
 It might be used to catch all unknown clients in the network.
 
 #### Deploying
