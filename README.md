@@ -30,6 +30,10 @@ You can build your own image for the physical servers simple using [Dockerfile].
 
 [Dockerfile]: https://github.com/kvaps/kubefarm/blob/master/build/ltsp/Dockerfile
 
+#### Secure
+
+You can deploy so many clusters as you want. All of them will have separated control-plane non visible for its consumers. Cert-manager will take care about the certificates.
+
 #### Known components
 
 
@@ -49,7 +53,8 @@ There is a number of dependencies needed to make kubefarm working:
 
 * **[Kubernetes]**
 
-  The parent Kubernetes cluster is required to deploy Kubernetes-in-Kubernetes control-planes and network booting servers there. You need to deploy new Kubernetes cluster using your favorite installation method, you can use [kubeadm] or [kubespray] for example.
+  The parent admin Kubernetes cluster is required to deploy user Kubernetes-in-Kubernetes control-planes and network booting servers for them.
+  You can deploy admin Kubernetes cluster using your favorite installation method, for example you can use [kubeadm] or [kubespray].
   
   [kubeadm]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
   [kubespray]: https://github.com/kubernetes-sigs/kubespray
