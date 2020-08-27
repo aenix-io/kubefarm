@@ -2,7 +2,7 @@
 # Kubernetes control-plane
 # ------------------------------------------------------------------------------
 kubernetes:
-  apiserver:
+  apiServer:
     certSANs:
       ipAddresses:
       - 10.28.36.72

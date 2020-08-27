@@ -15,7 +15,7 @@ kubernetes:
     enabled: true
     storageClassName: local-path
 
-  apiserver:
+  apiServer:
     service:
       type: LoadBalancer
       annotations: {}

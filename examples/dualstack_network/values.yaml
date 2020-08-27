@@ -2,7 +2,7 @@
 # Kubernetes control-plane
 # ------------------------------------------------------------------------------
 kubernetes:
-  apiserver:
+  apiServer:
     image:
       tag: v1.19.0-rc.4
     extraArgs:
