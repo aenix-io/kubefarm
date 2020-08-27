@@ -19,6 +19,7 @@ kubernetes:
     service:
       type: LoadBalancer
       annotations: {}
+      loadBalancerIP:
 
     # Specify external endpoints here to have an oportunity to the Kubernetes cluster externaly
     #certSANs:
@@ -55,6 +56,7 @@ ltsp:
   service:
     enabled: true
     type: LoadBalancer
+    loadBalancerIP:
     labels: {}
     annotations: {}
 

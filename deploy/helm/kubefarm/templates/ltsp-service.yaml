@@ -15,13 +15,15 @@ metadata:
     app: {{ $fullName }}
   name: {{ $fullName }}-http
 spec:
-  #loadBalancerIP: 1.2.3.4
   ports:
   - name: http
     port: 80
   selector:
     app: {{ $fullName }}
-  type: LoadBalancer
+  type: {{ .Values.ltsp.service.type }}
+  {{- with .Values.ltsp.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -37,12 +39,14 @@ metadata:
     app: {{ $fullName }}
   name: {{ $fullName }}-tftp
 spec:
-  #loadBalancerIP: 1.2.3.4
   ports:
   - name: tftp
     port: 69
     protocol: UDP
   selector:
     app: {{ $fullName }}
-  type: LoadBalancer
+  type: {{ .Values.ltsp.service.type }}
+  {{- with .Values.ltsp.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
 {{- end }}
