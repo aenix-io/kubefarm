@@ -1,4 +1,12 @@
 {{- $fullName := include "ltsp.fullname" . -}}
+{{- $hasTags := false -}}
+{{- range $key, $values := .Values.tags.dhcpOptions }}
+{{- if $values }}
+{{- $hasTags = true -}}
+{{- end }}
+{{- end }}
+
+{{- if $hasTags }}
 {{- with .Values.tags.dhcpOptions }}
 ---
 apiVersion: dnsmasq.kvaps.cf/v1beta1
@@ -25,4 +33,5 @@ spec:
         {{- end }}
     {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}

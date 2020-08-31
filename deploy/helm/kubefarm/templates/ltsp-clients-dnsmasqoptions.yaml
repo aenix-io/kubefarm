@@ -1,7 +1,7 @@
 {{- $fullName := include "ltsp.fullname" . -}}
 {{- $hasOptions := false -}}
 {{- range .Values.nodePools }}
-{{- if or (hasKey . "range") (hasKey . "extraOpts") }}
+{{- if or .range .extraOpts }}
 {{- $hasOptions = true -}}
 {{- end }}
 {{- end }}

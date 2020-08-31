@@ -1,7 +1,7 @@
 {{- $fullName := include "ltsp.fullname" . -}}
 {{- $hasNodes := false -}}
 {{- range .Values.nodePools }}
-{{- if hasKey . "nodes" }}
+{{- if and .nodes }}
 {{- $hasNodes = true -}}
 {{- end }}
 {{- end }}
