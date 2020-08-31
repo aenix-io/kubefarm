@@ -1,4 +1,4 @@
-{{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP }}
+{{- if and .Values.ltsp.enabled .Values.ltsp.publishDHCP (not .Values.ltsp.service.loadBalancerIP) }}
 {{- $fullName := include "ltsp.fullname" . -}}
 ---
 apiVersion: batch/v1

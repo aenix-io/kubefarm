@@ -10,4 +10,12 @@ metadata:
   name: {{ $fullName }}-ip
 spec:
   controller: ""
+  {{- with .Values.ltsp.service.loadBalancerIP }}
+  options:
+  - key: option:server-ip-address
+    tags:
+    - {{ $fullName }}
+    values:
+    - {{ . }}
+  {{- end }}
 {{- end }}
