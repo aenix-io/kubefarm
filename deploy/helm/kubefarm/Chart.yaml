@@ -1,6 +1,6 @@
 name: kubefarm
 description: Kubefarm cluster
-version: 0.3.0
+version: 0.3.1
 appVersion: 1.19.0
 keywords:
   - kubernetes
