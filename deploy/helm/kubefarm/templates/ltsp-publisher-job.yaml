@@ -6,7 +6,7 @@ kind: Job
 metadata:
   annotations:
     helm.sh/hook: post-install
-    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
   labels:
     app: {{ $fullName }}-publisher
   name: {{ $fullName }}-publish
