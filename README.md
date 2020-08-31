@@ -136,10 +136,19 @@ kubectl apply -n dnsmasq -f https://github.com/kvaps/kubefarm/raw/master/deploy/
 Spawn new cluster:
 
 ```bash
-git clone --recurse-submodules https://github.com/kvaps/kubefarm
-cp kubefarm/deploy/helm/kubefarm/values.yaml .
+helm repo add kvaps https://kvaps.github.io/charts
+helm show values kvaps/kubefarm --version 0.3.1 > values.yaml
 vim values.yaml
-helm upgrade --install cluster1 kubefarm/deploy/helm/kubefarm -f values.yaml --wait
+helm install cluster1 kvaps/kubefarm --version 0.3.1 \
+  --namespace cluster1 \
+  --create-namespace \
+  -f values.yaml
+```
+
+### Cleanup
+
+```bash
+kubectl delete namespace cluster1
 ```
 
 ## Usage

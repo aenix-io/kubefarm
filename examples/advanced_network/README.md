@@ -42,5 +42,9 @@ or just put `debug_shell` at any place you want to debug.
 apply:
 
 ```
-helm upgrade cluster1 ../../deploy/helm/kubefarm -f ../generic/values.yaml -f values.yaml
+helm upgrade --install cluster1 kvaps/kubefarm --version 0.3.1 \
+  --namespace cluster1 \
+  --create-namespace \
+  -f ../generic/values.yaml \
+  -f values.yaml
 ```
