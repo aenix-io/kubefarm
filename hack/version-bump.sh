@@ -27,7 +27,7 @@ echo
 kink_version=$(sed -n 's/version: //p' deploy/helm/kubefarm/charts/kubernetes/Chart.yaml)
 echo "bumping kink version to $kink_version"
 
-f=deploy/helm/kubefarm/Chart.yaml
+f=deploy/helm/kubefarm/requirements.yaml
 sed -i -z "s/\(name: kubernetes\n  version:\) [0-9]\+\.[0-9]\+\.[0-9]\+/\1 ${version}/" "$f"
 git diff --exit-code "$f" && echo "$f not changed" && EC=1
 
