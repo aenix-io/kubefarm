@@ -66,8 +66,6 @@ helm upgrade \
   --set global.k8sServicePort=6443 \
   --set global.ipv4.enabled=true \
   --set global.ipv6.enabled=true \
-  --set global.k8s.requireIPv4PodCIDR=false \
-  --set global.k8s.requireIPv6PodCIDR=false \
   --set global.tunnel=disabled \
   --set global.autoDirectNodeRoutes=true \
   --set global.nativeRoutingCIDR=10.112.0.0/12 \
@@ -76,6 +74,3 @@ helm upgrade \
   --set global.ipam.operator.clusterPoolIPv6PodCIDR=fd00::/104 \
   --set global.ipam.operator.clusterPoolIPv6MaskSize=112
 ```
-
-> Warning: `global.k8s.requireIPv6PodCIDR=false` option is not currently supported:  
-> https://github.com/cilium/cilium/pull/12937
