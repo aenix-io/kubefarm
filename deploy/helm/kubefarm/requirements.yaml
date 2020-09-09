@@ -1,6 +1,6 @@
 dependencies:
 - name: kubernetes
-  version: 0.3.2
+  version: 0.4.0
   repository: "file://vendor/github.com/kvaps/kubernetes-in-kubernetes/deploy/helm/kubernetes"
   tags:
     - kubernetes

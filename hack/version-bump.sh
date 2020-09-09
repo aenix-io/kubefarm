@@ -1,7 +1,9 @@
 #!/bin/sh
 EC=0
 
-version=$(git describe --tags --abbrev=0 | cut -c2-)
+version=$1
+[ -z "$version" ] && echo "version is not specified as first argument" && exit 1
+
 echo "bumping version to $version"
 
 f=README.md
