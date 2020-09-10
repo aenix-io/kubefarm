@@ -70,7 +70,7 @@ There is a number of dependencies needed to make kubefarm working:
   The cert-manager performs the certificates issuing for Kubernetes-in-Kubernetes and its etcd-cluster.
   
   ```bash
-  kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.2/cert-manager.yaml
+  kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.1/cert-manager.yaml
   ```
   
 * **[Local Path Provisioner]**
@@ -137,9 +137,9 @@ Spawn new cluster:
 
 ```bash
 helm repo add kvaps https://kvaps.github.io/charts
-helm show values kvaps/kubefarm --version 0.4.0 > values.yaml
+helm show values kvaps/kubefarm --version 0.5.0 > values.yaml
 vim values.yaml
-helm install cluster1 kvaps/kubefarm --version 0.4.0 \
+helm install cluster1 kvaps/kubefarm --version 0.5.0 \
   --namespace cluster1 \
   --create-namespace \
   -f values.yaml
