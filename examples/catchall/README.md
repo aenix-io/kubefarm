@@ -17,7 +17,7 @@ apply:
 
 ```
 helm install catchall kvaps/kubefarm --version 0.5.1 \
-  --namespace catchall \
+  --namespace kubefarm-catchall \
   --create-namespace \
   -f values.yaml
 ```

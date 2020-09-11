@@ -43,7 +43,7 @@ apply:
 
 ```
 helm upgrade --install cluster1 kvaps/kubefarm --version 0.5.1 \
-  --namespace cluster1 \
+  --namespace kubefarm-cluster1 \
   --create-namespace \
   -f ../generic/values.yaml \
   -f values.yaml
