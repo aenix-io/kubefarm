@@ -19,7 +19,7 @@ if ! [ $2 -gt 0 ] 2>/dev/null; then
   exit 2
 fi
 
-INITIAL_CLUSTER=$(for i in `seq 0 $(($2-1))`; do echo $1-$i=https://$1-$i.$1:2380; done | paste -s -d,)
+INITIAL_CLUSTER=$(for i in $(seq 0 $(($2 - 1))); do echo $1-$i=https://$1-$i.$1:2380; done | paste -s -d,)
 
 cat <<EOT
 # wait for all replicas
@@ -32,31 +32,70 @@ kind: StatefulSet
 spec:
   template:
     spec:
+      volumes:
+      - name: tools
+        emptyDir: {}
+      initContainers:
+      - name: busybox
+        image: busybox
+        command:
+        - /bin/sh
+        - -c
+        - |
+          wget https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/busybox -O /tools/busybox
+          chmod +x /tools/busybox
+        livenessProbe: null
+        volumeMounts:
+        - mountPath: /tools
+          name: tools
       containers:
       - name: etcd
         command:
         - sleep
         - infinity
         livenessProbe: null
+        volumeMounts:
+        - mountPath: /usr/bin/tar
+          name: tools
+          subPath: busybox
+        - mountPath: /usr/bin/cat
+          name: tools
+          subPath: busybox
+        - mountPath: /usr/bin/ls
+          name: tools
+          subPath: busybox
+        - mountPath: /usr/bin/rm
+          name: tools
+          subPath: busybox
+        - mountPath: /usr/bin/cp
+          name: tools
+          subPath: busybox
+        - mountPath: /usr/bin/mv
+          name: tools
+          subPath: busybox
+        - mountPath: /usr/bin/sleep
+          name: tools
+          subPath: busybox
       terminationGracePeriodSeconds: 0
+
 "
 
 # wait for all replicas
 kubectl rollout status -w sts "$1"
 EOT
 
-for i in `seq 0 $(($2-1))`; do
+for i in $(seq 0 $(($2 - 1))); do
   cat <<EOT
 
 # restore $1-$i
 kubectl cp "$3" "$1-$i:/snapshot.db"
-kubectl exec "$1-$i" -- sh -c "set -x; rm -rf /default.etcd && etcdctl snapshot restore snapshot.db \\
-  --data-dir=/default.etcd \\
+kubectl exec "$1-$i" -- sh -xc "rm -rf /var/lib/etcd/member /var/lib/etcd/new; etcdctl snapshot restore snapshot.db \\
+  --data-dir=/var/lib/etcd/new \\
   --name=\\"$1-$i\\" \\
   --initial-cluster=\\"$INITIAL_CLUSTER\\" \\
   --initial-cluster-token=\\"$1-$1\\" \\
-  --initial-advertise-peer-urls=\\"https://$1-$i.$1:2380\\""
-kubectl exec "$1-$i" -- sh -c 'rm -rf /var/lib/etcd/* && mv /default.etcd/* /var/lib/etcd/'
+  --initial-advertise-peer-urls=\\"https://$1-$i.$1:2380\\" &&
+  mv /var/lib/etcd/new/member /var/lib/etcd/member && rm -rf /var/lib/etcd/new"
 EOT
 done
 
