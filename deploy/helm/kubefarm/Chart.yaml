@@ -1,6 +1,6 @@
 name: kubefarm
 description: Kubefarm cluster
-version: 0.5.1
+version: 0.5.2
 appVersion: 1.19.0
 icon: https://avatars1.githubusercontent.com/u/68351149?s=150&u=b8b4cb0f364281274159d4098090c0e229370cf0
 keywords:

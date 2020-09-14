@@ -42,7 +42,7 @@ or just put `debug_shell` at any place you want to debug.
 apply:
 
 ```
-helm upgrade --install cluster1 kvaps/kubefarm --version 0.5.1 \
+helm upgrade --install cluster1 kvaps/kubefarm --version 0.5.2 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f ../generic/values.yaml \
