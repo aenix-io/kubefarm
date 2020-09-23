@@ -37,13 +37,11 @@ spec:
         emptyDir: {}
       initContainers:
       - name: busybox
-        image: busybox
+        image: docker.io/library/busybox:1.32.0-uclibc
         command:
-        - /bin/sh
-        - -c
-        - |
-          wget https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/busybox -O /tools/busybox
-          chmod +x /tools/busybox
+        - cp
+        - /bin/busybox
+        - /tools/busybox
         livenessProbe: null
         volumeMounts:
         - mountPath: /tools
