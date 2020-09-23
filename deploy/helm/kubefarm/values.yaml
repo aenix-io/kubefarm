@@ -1,13 +1,8 @@
-# Tags allow to enable/disable certain components of kubefarm as defined in requirements.yaml
-# https://docs.helm.sh/developing_charts/#tags-and-condition-fields-in-requirements-yaml
-# 
-# tags:
-#   kubernetes: true
-
 # ------------------------------------------------------------------------------
 # Kubernetes control-plane
 # ------------------------------------------------------------------------------
 kubernetes:
+  enabled: true
   # See all available options for kubernetes-in-kubernetes chart on:
   # https://github.com/kvaps/kubernetes-in-kubernetes/blob/master/deploy/helm/kubernetes/values.yaml
 

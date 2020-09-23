@@ -12,3 +12,7 @@ sources:
 maintainers:
   - name: kvaps
     email: kvapss@gmail.com
+dependencies:
+  - name: kubernetes
+    version: 0.5.2
+    condition: kubernetes.enabled
