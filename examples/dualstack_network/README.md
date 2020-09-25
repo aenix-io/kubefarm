@@ -47,7 +47,7 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 deploy kubernetes cluster without kube-proxy:
 
 ```bash
-helm upgrade --install cluster1 kvaps/kubefarm --version 0.5.2 \
+helm upgrade --install cluster1 kvaps/kubefarm --version 0.6.0 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f ../generic/values.yaml \
@@ -59,7 +59,7 @@ Install [Cilium](https://cilium.io/):
 ```bash
 helm upgrade \
   --install cilium cilium/cilium \
-  --version 1.8.2 \
+  --version 1.8.3 \
   --namespace kube-system \
   --set global.kubeProxyReplacement=strict \
   --set global.k8sServiceHost=cluster1-kubernetes-apiserver \
