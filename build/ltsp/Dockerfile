@@ -4,8 +4,8 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ARG VERSION=v0.3.0
-ARG DEBIAN_FRONTEND=noninteractive
+ENV VERSION=v0.7.0
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install updates and LTSP package
 RUN apt-get -y update \
@@ -27,13 +27,12 @@ RUN apt-get -y update \
  && apt-get clean
 
 #-------------------------------------------------------------------------------
-# Rootfs for the clinets
+# Installing Kernel and basic software
 #-------------------------------------------------------------------------------
 
-FROM ltsp as rootfs
+FROM ltsp as rootfs-pre
 
 # Install packages
-ARG DEBIAN_FRONTEND=noninteractive
 RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' \
       >> /etc/apt/apt.conf.d/01norecommend \
  && mkdir -p /var/lib/resolvconf \
@@ -69,6 +68,7 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' \
       resolvconf \
       rsync \
       screen \
+      squashfs-tools \
       ssh \
       sysstat \
       systemd \
@@ -87,11 +87,6 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' \
 # Disable systemd-resolved
 RUN systemctl disable systemd-resolved.service \
  && systemctl mask systemd-resolved.service
-
-# Allow boot without root= specified
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=962509
-RUN sed -i 's/panic "No root device specified.*/return/' /usr/share/initramfs-tools/scripts/local \
- && update-initramfs -u
 
 # Install docker
 ARG DOCKER_VERSION=19.03
@@ -137,7 +132,7 @@ RUN printf '%s\n' \
 # Build kernel modules
 #-------------------------------------------------------------------------------
 
-FROM rootfs as modules
+FROM rootfs-pre as modules
 
 # Install kernel-headers and dkms
 RUN apt-get update \
@@ -153,7 +148,27 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC1B5A793C04BB3905A
  && apt-get -y install drbd-dkms
 
 #-------------------------------------------------------------------------------
-# Build server binaries and rootfs image
+# Build rootfs image
+#-------------------------------------------------------------------------------
+
+FROM rootfs-pre as rootfs
+
+# Copy kernel modules
+COPY --from=modules /lib/modules/ /lib/modules/
+
+# Generate initramfs with new modules
+RUN update-initramfs -u
+
+# Generate motd
+COPY motd /etc/motd
+RUN sed -i "s/\${VERSION}/${VERSION}/" /etc/motd
+
+# Generate image
+ENV OMIT_FUNCTIONS="remove_users"
+RUN ltsp image -I /
+
+#-------------------------------------------------------------------------------
+# Build dnsmasq with tftp single port support
 #-------------------------------------------------------------------------------
 
 FROM ltsp as builder
@@ -163,7 +178,6 @@ RUN apt-get -y update \
  && apt-get -y install \
       git \
       build-essential \
-      squashfs-tools \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* \
 
@@ -173,20 +187,6 @@ RUN git clone git://thekelleys.org.uk/dnsmasq.git \
  && cd dnsmasq/ \
  && git checkout ${DNSMAQ_VERSION} \
  && make
-
-# Copy client filesystem and kernel modules
-COPY --from=rootfs / /rootfs
-COPY --from=modules /lib/modules/ /rootfs/lib/modules/
-
-# Generate initramfs with new modules
-RUN chroot /rootfs/ update-initramfs -u
-
-# Generate motd
-COPY motd /rootfs/etc/motd
-RUN sed -i "s/\${VERSION}/${VERSION}/" /rootfs/etc/motd
-
-ENV OMIT_FUNCTIONS="remove_users"
-RUN ltsp image -I /rootfs
 
 #-------------------------------------------------------------------------------
 # LTSP-Server
@@ -207,5 +207,5 @@ RUN apt-get -y update \
 RUN ltsp http -I
 
 COPY --from=builder /dnsmasq/src/dnsmasq /usr/sbin/dnsmasq
-COPY --from=builder /srv/ltsp/images /srv/ltsp/images
-COPY --from=builder /srv/tftp/ltsp /srv/tftp/ltsp
+COPY --from=rootfs /srv/ltsp/images /srv/ltsp/images
+COPY --from=rootfs /srv/tftp/ltsp /srv/tftp/ltsp
