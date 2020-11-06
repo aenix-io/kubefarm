@@ -7,7 +7,11 @@ version=$1
 echo "bumping version to $version"
 
 f=README.md
-sed -i "s/\(kubefarm --version\) [0-9]\+\.[0-9]\+\.[0-9]\+/\1 ${version}/" README.md
+sed -i "s/\(kubefarm --version\) [0-9]\+\.[0-9]\+\.[0-9]\+/\1 ${version}/" "$f"
+git diff --exit-code "$f" && echo "$f not changed" && EC=1
+
+f=build/ltsp/Dockerfile
+sed -i "s/\(^ENV VERSION=v\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${version}/" "$f"
 git diff --exit-code "$f" && echo "$f not changed" && EC=1
 
 f=deploy/helm/kubefarm/Chart.yaml
