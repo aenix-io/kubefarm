@@ -51,8 +51,10 @@ spec:
       containers:
 
       - name: config
-        image: {{ .Values.ltsp.image.repository }}:{{ .Values.ltsp.image.tag }}
-        imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
+        {{- with .Values.ltsp.image }}
+        image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
+        imagePullPolicy: {{ .PullPolicy }}
+        {{- end }}
         command:
         - /bin/sh
         - -c
@@ -69,8 +71,10 @@ spec:
           name: shared
 
       - name: http
-        image: {{ .Values.ltsp.image.repository }}:{{ .Values.ltsp.image.tag }}
-        imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
+        {{- with .Values.ltsp.image }}
+        image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
+        imagePullPolicy: {{ .PullPolicy }}
+        {{- end }}
         command:
         - /bin/sh
         - -c
@@ -94,7 +98,10 @@ spec:
           name: shared
 
       - name: tftp
-        image: {{ .Values.ltsp.image.repository }}:{{ .Values.ltsp.image.tag }}
+        {{- with .Values.ltsp.image }}
+        image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
+        imagePullPolicy: {{ .PullPolicy }}
+        {{- end }}
         imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
         command:
         - /bin/sh

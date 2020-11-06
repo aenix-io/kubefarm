@@ -22,8 +22,10 @@ spec:
       {{- end }}
       containers:
       - name: kubeadm
-        image: {{ .Values.kubernetes.admin.image.repository }}:{{ .Values.kubernetes.admin.image.tag }}
-        imagePullPolicy: {{ .Values.kubernetes.admin.image.PullPolicy }}
+        {{- with .Values.kubernetes.admin.image }}
+        image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
+        imagePullPolicy: {{ .PullPolicy }}
+        {{- end }}
         command: [ '/scripts/gentoken.sh' ]
         env:
         - name: SVC
