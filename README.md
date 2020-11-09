@@ -92,9 +92,16 @@ There is a number of dependencies needed to make kubefarm working:
   kubectl apply -f https://github.com/metallb/metallb/raw/v0.9.3/manifests/metallb.yaml
   kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
   ```
-    
-  Also [configure MetalLB Layer 2 address range](https://metallb.universe.tf/configuration/#layer-2-configuration) after the installation.  
 
+  There is currently a bug in MetalLB that may block the use of multiple services on shared IP [metallb/metallb#558](https://github.com/metallb/metallb/issues/558).
+  However you can simple use patched images from this PR [metallb/metallb#562 (comment)](https://github.com/metallb/metallb/pull/562#issuecomment-724066537):
+
+  ```bash
+  kubectl set image -n metallb-system ds/metallb-speaker metallb-speaker=docker.io/kvaps/metallb-speaker:a3047c4d
+  kubectl set image -n metallb-system deploy/metallb-controller metallb-controller=docker.io/kvaps/metallb-controller:a3047c4d
+  ```
+
+  Also [configure MetalLB Layer 2 address range](https://metallb.universe.tf/configuration/#layer-2-configuration) after the installation.  
   These IP-addresses will be used for the child Kubernetes clusters and network booting servers.
 
 * **[Dnsmasq-controller]**
