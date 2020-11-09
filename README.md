@@ -144,9 +144,9 @@ Spawn new cluster:
 
 ```bash
 helm repo add kvaps https://kvaps.github.io/charts
-helm show values kvaps/kubefarm --version 0.7.1 > values.yaml
+helm show values kvaps/kubefarm --version 0.8.0 > values.yaml
 vim values.yaml
-helm install cluster1 kvaps/kubefarm --version 0.7.1 \
+helm install cluster1 kvaps/kubefarm --version 0.8.0 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f values.yaml
@@ -163,7 +163,7 @@ kubectl delete namespace cluster1
 You can access your newly deployed cluster very quickly:
 
 ```bash
-kubectl exec -ti `kubectl get pod -l app=cluster1-kubernetes-admin -o name` -- sh
+kubectl exec -ti deploy/cluster1-kubernetes-admin -- sh
 ```
 
 #### External clients
@@ -173,7 +173,7 @@ To achieve that you need to specify correct hostname or IP-address for `kubernet
 Now you can get kubeconfig for your cluster:
 
 ```bash
-kubectl get secret cluster1-kubernetes-admin-conf -o go-template='{{index .data "admin.conf" | base64decode }}'
+kubectl exec -ti deploy/microservices-kubernetes-admin -- kubectl config view --flatten
 ```
 
 you only need to correct the server address in it.
