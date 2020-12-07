@@ -97,8 +97,8 @@ There is a number of dependencies needed to make kubefarm working:
   However you can simple use patched images from this PR [metallb/metallb#562 (comment)](https://github.com/metallb/metallb/pull/562#issuecomment-724066537):
 
   ```bash
-  kubectl set image -n metallb-system ds/metallb-speaker metallb-speaker=docker.io/kvaps/metallb-speaker:a3047c4d
-  kubectl set image -n metallb-system deploy/metallb-controller metallb-controller=docker.io/kvaps/metallb-controller:a3047c4d
+  kubectl set image -n metallb-system deploy/controller controller=docker.io/kvaps/metallb-controller:a3047c4d
+  kubectl set image -n metallb-system ds/speaker speaker=docker.io/kvaps/metallb-controller:a3047c4d
   ```
 
   Also [configure MetalLB Layer 2 address range](https://metallb.universe.tf/configuration/#layer-2-configuration) after the installation.  
