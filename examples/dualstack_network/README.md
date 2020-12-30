@@ -59,18 +59,18 @@ Install [Cilium](https://cilium.io/):
 ```bash
 helm upgrade \
   --install cilium cilium/cilium \
-  --version 1.8.3 \
+  --version 1.9.1 \
   --namespace kube-system \
-  --set global.kubeProxyReplacement=strict \
-  --set global.k8sServiceHost=cluster1-kubernetes-apiserver \
-  --set global.k8sServicePort=6443 \
-  --set global.ipv4.enabled=true \
-  --set global.ipv6.enabled=true \
-  --set global.tunnel=disabled \
-  --set global.autoDirectNodeRoutes=true \
-  --set global.nativeRoutingCIDR=10.112.0.0/12 \
-  --set global.ipam.operator.clusterPoolIPv4PodCIDR=10.112.0.0/12 \
-  --set global.ipam.operator.clusterPoolIPv4MaskSize=24 \
-  --set global.ipam.operator.clusterPoolIPv6PodCIDR=fd00::/104 \
-  --set global.ipam.operator.clusterPoolIPv6MaskSize=112
+  --set kubeProxyReplacement=strict \
+  --set k8sServiceHost=cluster1-kubernetes-apiserver \
+  --set k8sServicePort=6443 \
+  --set ipv4.enabled=true \
+  --set ipv6.enabled=true \
+  --set tunnel=disabled \
+  --set autoDirectNodeRoutes=true \
+  --set nativeRoutingCIDR=10.112.0.0/12 \
+  --set ipam.operator.clusterPoolIPv4PodCIDR=10.112.0.0/12 \
+  --set ipam.operator.clusterPoolIPv4MaskSize=24 \
+  --set ipam.operator.clusterPoolIPv6PodCIDR=fd00::/104 \
+  --set ipam.operator.clusterPoolIPv6MaskSize=112
 ```
