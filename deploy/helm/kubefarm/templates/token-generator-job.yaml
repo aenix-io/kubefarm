@@ -42,15 +42,20 @@ spec:
           readOnly: true
         - mountPath: /scripts
           name: scripts
+        - mountPath: /pki/admin-client
+          name: pki-admin-client
       volumes:
       - name: kubeconfig
-        secret:
+        configMap:
           defaultMode: 420
-          secretName: {{ template "kubernetes.fullname" . }}-admin-conf
+          name: {{ template "kubernetes.fullname" . }}-admin-conf
       - name: scripts
         configMap:
           name: {{ $fullName }}-scripts
           defaultMode: 0777
+      - secret:
+          secretName: "{{ template "kubernetes.fullname" . }}-pki-admin-client"
+        name: pki-admin-client
       restartPolicy: OnFailure
       serviceAccountName: {{ $fullName }}-token-generator
 {{- end }}
