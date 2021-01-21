@@ -16,7 +16,7 @@ spec:
       labels:
         app: {{ $fullName }}-token-generator
     spec:
-      {{- with .Values.kubernetes.admin.image.PullSecrets }}
+      {{- with .Values.kubernetes.admin.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 10 }}
       {{- end }}
@@ -24,7 +24,7 @@ spec:
       - name: kubeadm
         {{- with .Values.kubernetes.admin.image }}
         image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
-        imagePullPolicy: {{ .PullPolicy }}
+        imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
         command: [ '/scripts/gentoken.sh' ]
         env:

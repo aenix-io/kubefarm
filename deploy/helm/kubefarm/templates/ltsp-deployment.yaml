@@ -44,7 +44,7 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.ltsp.image.PullSecrets }}
+      {{- with .Values.ltsp.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 10 }}
       {{- end }}
@@ -53,7 +53,7 @@ spec:
       - name: config
         {{- with .Values.ltsp.image }}
         image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
-        imagePullPolicy: {{ .PullPolicy }}
+        imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
         command:
         - /bin/sh
@@ -73,7 +73,7 @@ spec:
       - name: http
         {{- with .Values.ltsp.image }}
         image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
-        imagePullPolicy: {{ .PullPolicy }}
+        imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
         command:
         - /bin/sh
@@ -100,9 +100,8 @@ spec:
       - name: tftp
         {{- with .Values.ltsp.image }}
         image: "{{ .repository }}{{ if .digest }}@{{ .digest }}{{ else }}:{{ .tag }}{{ end }}"
-        imagePullPolicy: {{ .PullPolicy }}
+        imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
-        imagePullPolicy: {{ .Values.ltsp.image.PullPolicy }}
         command:
         - /bin/sh
         - -c
