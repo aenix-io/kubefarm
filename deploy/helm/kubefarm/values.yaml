@@ -43,8 +43,8 @@ ltsp:
   image:
     repository: ghcr.io/kvaps/kubefarm-ltsp
     tag: v0.9.0
-    PullPolicy: IfNotPresent
-    PullSecrets: []
+    pullPolicy: IfNotPresent
+    pullSecrets: []
   replicaCount: 1
 
   publishDHCP: true
