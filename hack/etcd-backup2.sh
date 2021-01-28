@@ -88,61 +88,20 @@ overrides="$(
     "automountServiceAccountToken": false,
     "initContainers": [
       {
+        "name": "etcd",
         "command": [
           "/bin/sh",
           "-c",
           "etcdctl snapshot save /data/snapshot.db"
         ],
-        "env": [
-          {
-            "name": "POD_NAME",
-            "valueFrom": {
-              "fieldRef": {
-                "fieldPath": "metadata.name"
-              }
-            }
-          },
-          {
-            "name": "ETCDCTL_API",
-            "value": "3"
-          },
-          {
-            "name": "ETCDCTL_CACERT",
-            "value": "/pki/etcd/peer/ca.crt"
-          },
-          {
-            "name": "ETCDCTL_CERT",
-            "value": "/pki/etcd/peer/tls.crt"
-          },
-          {
-            "name": "ETCDCTL_KEY",
-            "value": "/pki/etcd/peer/tls.key"
-          },
-          {
-            "name": "ETCDCTL_ENDPOINTS",
-            "value": "https://${sts}:2379"
-          }
-        ],
-        "image": "k8s.gcr.io/etcd:3.4.13-0",
-        "name": "etcd",
+        "env": $(kubectl get sts "${sts}" -o 'jsonpath={.spec.template.spec.containers[0].env}' | sed 's|\(\"https://\)[^"]\+\(:[0-9]\+\"\)|\1'"${sts}"'\2|g'),
+        "image": "$(kubectl get sts "${sts}" -o 'jsonpath={.spec.template.spec.containers[0].image}')",
         "volumeMounts": [
-          {
-            "mountPath": "/pki/etcd/ca",
-            "name": "pki-etcd-certs-ca"
-          },
-          {
-            "mountPath": "/pki/etcd/peer",
-            "name": "pki-etcd-certs-peer"
-          },
-          {
-            "mountPath": "/pki/etcd/server",
-            "name": "pki-etcd-certs-server"
-          },
           {
             "mountPath": "/data",
             "name": "data"
-          }
-        ]
+          },
+        $(kubectl get sts "${sts}" -o 'jsonpath={.spec.template.spec.containers[0].volumeMounts}' | sed 's|,\?{[^{]\+etcd-data[^{]\+}||' | cut -c2-)
       }
     ],
     "containers": [
@@ -168,25 +127,7 @@ overrides="$(
         "name": "data",
         "emptyDir": {}
       },
-      {
-        "name": "pki-etcd-certs-ca",
-        "secret": {
-          "secretName": "${sts%-*}-pki-etcd-ca"
-        }
-      },
-      {
-        "name": "pki-etcd-certs-peer",
-        "secret": {
-          "secretName": "${sts%-*}-pki-etcd-peer"
-        }
-      },
-      {
-        "name": "pki-etcd-certs-server",
-        "secret": {
-          "secretName": "${sts%-*}-pki-etcd-server"
-        }
-      }
-    ]
+      $(kubectl get sts "${sts}" -o jsonpath={.spec.template.spec.volumes} | cut -c2-)
   }
 }
 EOT
@@ -202,5 +143,10 @@ trap "EC=\$?; $kubectl delete pod --wait=false $pod 2>/dev/null || true; exit \$
 
 echo "spawning \"$pod\" for \"$sts\""
 $kubectl run --image "$image" --restart=Never --overrides="$overrides" "$pod" $generator
-$kubectl wait --for=condition=ready pod "$pod"
-$kubectl cp "$pod:data/snapshot.db" "$file"
+if $kubectl wait --for=condition=ready pod "$pod"; then
+  $kubectl cp "$pod:data/snapshot.db" "$file"
+  exit 0
+else
+  $kubectl logs "$pod" -c etcd
+  exit 1
+fi
