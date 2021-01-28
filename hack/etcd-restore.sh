@@ -49,29 +49,19 @@ spec:
       containers:
       - name: etcd
         command:
+        - busybox
         - sleep
         - infinity
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - busybox
+              - --install
+              - -s
         livenessProbe: null
         volumeMounts:
-        - mountPath: /usr/bin/tar
-          name: tools
-          subPath: busybox
-        - mountPath: /usr/bin/cat
-          name: tools
-          subPath: busybox
-        - mountPath: /usr/bin/ls
-          name: tools
-          subPath: busybox
-        - mountPath: /usr/bin/rm
-          name: tools
-          subPath: busybox
-        - mountPath: /usr/bin/cp
-          name: tools
-          subPath: busybox
-        - mountPath: /usr/bin/mv
-          name: tools
-          subPath: busybox
-        - mountPath: /usr/bin/sleep
+        - mountPath: /usr/bin/busybox
           name: tools
           subPath: busybox
       terminationGracePeriodSeconds: 0
