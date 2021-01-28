@@ -37,7 +37,7 @@ spec:
         emptyDir: {}
       initContainers:
       - name: busybox
-        image: docker.io/library/busybox:1.32.0-uclibc
+        image: mirror.gcr.io/library/busybox:1.31.1-uclibc
         command:
         - cp
         - /bin/busybox
