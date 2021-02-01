@@ -4,7 +4,7 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ENV VERSION=v0.9.0
+ENV VERSION=v0.9.1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install updates and LTSP package
