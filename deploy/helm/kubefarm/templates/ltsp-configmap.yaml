@@ -96,9 +96,10 @@ data:
     mkdir -p /etc/systemd/system/kubelet.service.d
     ( LABELS=$(echo_values "KUBERNETES_LABELS_[[:alnum:]_]*" | paste -s -d,)
       TAINTS=$(echo_values "KUBERNETES_TAINTS_[[:alnum:]_]*" | paste -s -d,)
-      printf "[Service]\nEnvironment=\"KUBELET_EXTRA_ARGS=%s %s\"\n" \
-        "${LABELS:+--node-labels=$LABELS}" "${TAINTS:+--register-with-taints=$TAINTS}"
-    ) > /etc/systemd/system/kubelet.service.d/20-labels-taints.conf
+      EXTRA_ARGS=$(echo_values "KUBELET_EXTRA_ARGS_[[:alnum:]_]*" | paste -s -d" ")
+      printf "[Service]\nEnvironment=\"KUBELET_EXTRA_ARGS=%s %s %s\"\n" \
+        "${LABELS:+--node-labels=$LABELS}" "${TAINTS:+--register-with-taints=$TAINTS}" "$EXTRA_ARGS"
+    ) > /etc/systemd/system/kubelet.service.d/99-extra-args.conf
 
     {{- with index .Values.ltsp.config.sections "init/" }}
     {{- . | nindent 4 }}

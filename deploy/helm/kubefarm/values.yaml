@@ -185,6 +185,7 @@ tags:
     all:
       FSTAB_KUBELET: "tmpfs /var/lib/kubelet tmpfs x-systemd.wanted-by=kubelet.service 0 0"
       FSTAB_DOCKER: "tmpfs /var/lib/docker tmpfs x-systemd.wanted-by=docker.service 0 0"
+      KUBELET_EXTRA_ARGS_CGROUP: "--cgroup-driver=systemd"
     debug:
       DEBUG_SHELL: "1"
 
@@ -200,4 +201,3 @@ tags:
     #  - effect: NoSchedule
     #    key: foo
     #    value: bar
-
