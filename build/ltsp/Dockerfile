@@ -4,7 +4,7 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ENV VERSION=v1.9.2
+ENV VERSION=v1.10.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install updates and LTSP package
@@ -89,7 +89,7 @@ RUN systemctl disable systemd-resolved.service \
  && systemctl mask systemd-resolved.service
 
 # Install docker
-ARG DOCKER_VERSION=19.03
+ARG DOCKER_VERSION=20.10
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
  && echo "deb https://download.docker.com/linux/ubuntu focal stable" \
       > /etc/apt/sources.list.d/docker.list \
@@ -100,7 +100,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
 
 # Install kubeadm, kubelet and kubectl
 # https://kubernetes.io/docs/setup/independent/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
-ARG KUBE_VERSION=1.19
+ARG KUBE_VERSION=1.20
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
  && echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
       > /etc/apt/sources.list.d/kubernetes.list \
