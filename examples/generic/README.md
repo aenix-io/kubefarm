@@ -19,7 +19,7 @@ This setup illustrates the deployment of typical cluster with the static clients
 apply:
 
 ```
-helm upgrade --install cluster1 kvaps/kubefarm --version 0.9.2 \
+helm upgrade --install cluster1 kvaps/kubefarm --version 0.10.0 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f values.yaml
