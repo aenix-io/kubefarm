@@ -18,9 +18,3 @@ kubernetes:
 
   kubeProxy: 
     enabled: false
-
-ltsp:
-  config:
-    options:
-      # workaround: https://github.com/cilium/cilium/issues/6320
-      POST_SERVICE_CILIUM_MASQ: ip6tables -t nat -A POSTROUTING ! -o cilium_+ -s fd00::/104 -j MASQUERADE

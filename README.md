@@ -92,14 +92,6 @@ There is a number of dependencies needed to make kubefarm working:
   kubectl apply -f https://github.com/metallb/metallb/raw/v0.10.2/manifests/metallb.yaml
   ```
 
-  There is currently a bug in MetalLB that may block the use of multiple services on shared IP [metallb/metallb#558](https://github.com/metallb/metallb/issues/558).
-  However you can simple use patched images from this PR [metallb/metallb#922](https://github.com/metallb/metallb/pull/922):
-
-  ```bash
-  kubectl set image -n metallb-system deploy/controller controller=ghcr.io/kvaps/metallb-controller:v0.10.2-fix558
-  kubectl set image -n metallb-system ds/speaker speaker=ghcr.io/kvaps/metallb-speaker:v0.10.2-fix558
-  ```
-
   Also [configure MetalLB Layer 2 address range](https://metallb.universe.tf/configuration/#layer-2-configuration) after the installation.  
   These IP-addresses will be used for the child Kubernetes clusters and network booting servers.
 
@@ -143,13 +135,16 @@ Spawn new cluster:
 
 ```bash
 helm repo add kvaps https://kvaps.github.io/charts
-helm show values kvaps/kubefarm --version 0.11.0 > values.yaml
+helm show values kvaps/kubefarm --version 0.12.0 > values.yaml
 vim values.yaml
-helm install cluster1 kvaps/kubefarm --version 0.11.0 \
+helm install cluster1 kvaps/kubefarm --version 0.12.0 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f values.yaml
 ```
+
+> **Warning:** As in standard case, clusters are bootstrapped without the CNI-plugin installed. Please follow official Kubernetes to choose and install the CNI-plugin to complete the installation.
+
 
 ### Cleanup
 

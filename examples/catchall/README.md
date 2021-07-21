@@ -16,7 +16,7 @@ It might be used to catch all unknown clients in the network.
 apply:
 
 ```
-helm install catchall kvaps/kubefarm --version 0.11.0 \
+helm install catchall kvaps/kubefarm --version 0.12.0 \
   --namespace kubefarm-catchall \
   --create-namespace \
   -f values.yaml
