@@ -135,9 +135,9 @@ Spawn new cluster:
 
 ```bash
 helm repo add kvaps https://kvaps.github.io/charts
-helm show values kvaps/kubefarm --version 0.12.0 > values.yaml
+helm show values kvaps/kubefarm --version 0.13.0 > values.yaml
 vim values.yaml
-helm install cluster1 kvaps/kubefarm --version 0.12.0 \
+helm install cluster1 kvaps/kubefarm --version 0.13.0 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f values.yaml
