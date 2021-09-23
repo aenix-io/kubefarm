@@ -47,7 +47,7 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 deploy kubernetes cluster without kube-proxy:
 
 ```bash
-helm upgrade --install cluster1 kvaps/kubefarm --version 0.13.0 \
+helm upgrade --install cluster1 kvaps/kubefarm --version 0.13.1 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f ../generic/values.yaml \
