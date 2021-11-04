@@ -1,7 +1,7 @@
 name: kubefarm
 description: Kubefarm cluster
-version: 0.13.1
-appVersion: 1.22.2
+version: 0.13.2
+appVersion: 1.22.3
 icon: https://avatars1.githubusercontent.com/u/68351149?s=150&u=b8b4cb0f364281274159d4098090c0e229370cf0
 keywords:
   - kubernetes
@@ -14,5 +14,5 @@ maintainers:
     email: kvapss@gmail.com
 dependencies:
   - name: kubernetes
-    version: 0.13.1
+    version: 0.13.2
     condition: kubernetes.enabled
