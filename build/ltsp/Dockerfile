@@ -165,6 +165,8 @@ RUN sed -i "s/\${VERSION}/${VERSION}/" /etc/motd
 
 # Generate image
 ENV OMIT_FUNCTIONS="remove_users"
+ENV ADD_IMAGE_EXCLUDES="/tmp/image.excludes"
+RUN printf "%s\n" kaniko image.excludes.tmp > /tmp/image.excludes
 RUN ltsp image -I /
 
 #-------------------------------------------------------------------------------
