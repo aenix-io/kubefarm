@@ -4,7 +4,7 @@
 
 FROM ubuntu:20.04 as ltsp
 
-ENV VERSION=v0.13.2
+ENV VERSION=v0.13.3
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install updates and LTSP package
@@ -100,7 +100,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
 
 # Install kubeadm, kubelet and kubectl
 # https://kubernetes.io/docs/setup/independent/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
-ARG KUBE_VERSION=1.21
+ARG KUBE_VERSION=1.22
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
  && echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
       > /etc/apt/sources.list.d/kubernetes.list \
