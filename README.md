@@ -4,9 +4,9 @@ Kubefarm
 
 <img align=left src="https://avatars1.githubusercontent.com/u/68351149?s=150&u=b8b4cb0f364281274159d4098090c0e229370cf0">
 
-Kubefarm combines everything need to spawn multiple Kubernetes-in-Kubernetes clusters and network booting configuration to simple bootstrap the physical servers from the scratch.
+Kubefarm combines everything you need to spawn multiple Kubernetes-in-Kubernetes clusters, along with the network booting configurations to simplify bootstraping your physical servers from scratch.
 
-The project goals is to provide simple and unified way for deploying Kubernetes on bare metal.
+The project's goals are to provide a simple and unified way to deploy Kubernetes on bare metal.
 
 <p align="center">
 <img src="https://gist.githubusercontent.com/kvaps/c969930f561b24c1f4c09802d5e225c8/raw/6347f81814d1eb56ccd2d4cbdb2a8617965cfa9d/kubefarm.png">
@@ -16,32 +16,31 @@ The project goals is to provide simple and unified way for deploying Kubernetes 
 
 #### Fast & Simple
 
-There is no installation process as such, you just run your physical servers from scratch, during the boot they download the system image over the network and run it similar docker containers with overlayfs root.
+There is no installation process, so you just run your physical servers, andd during boot, they download the system image over the network and run it! Similar to docker containers that have `overlayfs` root.
 
-You don't have to think about redundancy and performing the updates for your OS anymore. Simple reboot is enough to apply new image.
+You don't have to think about redundancy and performing updates for your OS anymore! A simple reboot is enough to apply the new image!
 
 #### Declarative
 
-You can spawn new Kubernetes clusters and PXE-servers using Helm very quickly, just providing all the parameters in simple Yaml form.
+You can spawn new Kubernetes clusters and PXE-servers just using Helm, very quickly! Just provide all the parameters in the wonderfully simple Yaml format. 
 
 #### Customizable
 
-You can build your own image for the physical servers simple using [Dockerfile]. The default image is based on Ubuntu. You can put there anything need, simple add any additional packages and custom kernel modules.
+You can build your own image for the physical servers simply by just using a [Dockerfile]. The default image is based on Ubuntu. You can put anything you need! Simply add any additional packages and custom kernel modules, and initiate the build!
 
 [Dockerfile]: https://github.com/kvaps/kubefarm/blob/master/build/ltsp/Dockerfile
 
 #### Secure
 
-You can deploy so many clusters as you want. All of them will have separated control-plane non visible for its consumers. Cert-manager will take care about the certificates.
+You can deploy as many clusters as you want! All of them will have a separate control-plane, non visible to its consumers. Cert-manager will take care of  the certificates.
 
 #### Known components
 
+The whole setup consists of a few0 components:
 
-Whole setup consist of few known components:
-
-- **[Kubernetes-in-Kubernetes]** - Kubernetes control-plane packed to Helm-chart, it is based on official Kubernetes static pod manifests and using the official Kubernetes docker images.
-- **[Dnsmasq-controller]** - simple wrapper for Dnsmasq which automates the configuration using Kubernetes CRDs and perform leader-election for the DHCP high availability.
-- **[LTSP]** - network booting server and boot time configuration framework for the clients written in shell. It allows to boot OS over the network directly to RAM and perform initial initial configuration for each server.
+- **[Kubernetes-in-Kubernetes]** - Kubernetes control-plane packed to a Helm-chart. It is based on the official Kubernetes static pod manifests and using the official Kubernetes docker images.
+- **[Dnsmasq-controller]** - A simple wrapper for `Dnsmasq`, which automates the configuration using Kubernetes CRDs and will perform leader-election for DHCP high availability.
+- **[LTSP]** - Network boot server and boot time configuration framework for clients. It allows you to boot the OS over the network, directly to RAM and perform initial configurations for each server.
 
 [Kubernetes-in-Kubernetes]: https://github.com/kvaps/kubernetes-in-kubernetes
 [Dnsmasq-controller]: https://github.com/kvaps/dnsmasq-controller
@@ -49,17 +48,17 @@ Whole setup consist of few known components:
 
 ## Preparation
 
-There is a number of dependencies needed to make kubefarm working:
+There is a number of dependencies needed to make kubefarm work:
 
 * **[Kubernetes]**
 
-  The parent admin Kubernetes cluster is required to deploy user Kubernetes-in-Kubernetes control-planes and network booting servers for them.
-  You can deploy admin Kubernetes cluster using your favorite installation method, for example you can use [kubeadm] or [kubespray].
+  The parent admin Kubernetes cluster is required to deploy user Kubernetes-in-Kubernetes control-planes and network booting servers.
+  You can deploy admin Kubernetes clusters using your favorite installation method. For example, you can use [kubeadm] or [kubespray].
   
   [kubeadm]: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
   [kubespray]: https://github.com/kubernetes-sigs/kubespray
 
-  You might want untaint master nodes to allow run workload on them
+  You might want to untaint your master nodes to run workloads on them
 
   ```bash
   kubectl taint nodes --all node-role.kubernetes.io/master-
@@ -67,7 +66,7 @@ There is a number of dependencies needed to make kubefarm working:
 
 * **[Cert-manager]**
 
-  The cert-manager performs the certificates issuing for Kubernetes-in-Kubernetes and its etcd-cluster.
+  The cert-manager issues the certificates for Kubernetes-in-Kubernetes and its etcd-cluster.
   
   ```bash
   kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.1/cert-manager.yaml
@@ -75,17 +74,17 @@ There is a number of dependencies needed to make kubefarm working:
   
 * **[Local Path Provisioner]**
 
-  You need an automated persistent volumes management for your cluster, local-path-provisioner is simpliest way to achieve that.
+  You need an automated, persistent volumes management for your cluster. Local-path-provisioner is the simpliest way to achieve that.
 
   ```bash
   kubectl apply -f https://github.com/rancher/local-path-provisioner/raw/master/deploy/local-path-storage.yaml
   ```
 
-  Optionaly any other csi-driver can be used.
+  Optionaly, any other csi-driver can be used.
   
 * **[MetalLB]**
 
-  You also need an automated external IP-addresses management, MetalLB is providing this opportunity.
+  You also need an automated, external IP-address maganement. MetalLB is able to provide this.
   
   ```bash
   kubectl apply -f https://github.com/metallb/metallb/raw/v0.10.2/manifests/namespace.yaml
@@ -93,16 +92,17 @@ There is a number of dependencies needed to make kubefarm working:
   ```
 
   Also [configure MetalLB Layer 2 address range](https://metallb.universe.tf/configuration/#layer-2-configuration) after the installation.  
-  These IP-addresses will be used for the child Kubernetes clusters and network booting servers.
+  These IP addresses will be used for the child Kubernetes clusters and network booting servers.
 
 * **[Dnsmasq-controller]**
 
-  High available DHCP-server wrapper allows to configure DHCP leases over Kubernetes. Additional DNS-server mode is allowed.
+  Highly available DHCP server wrapper allows you to configure DHCP leases over Kubernetes. Additional DNS-server modes are allowed:
 
   ```bash
   kubectl create namespace dnsmasq
   kubectl create -n dnsmasq clusterrolebinding dnsmasq-controller --clusterrole dnsmasq-controller --serviceaccount dnsmasq:dnsmasq-controller
   kubectl create -n dnsmasq rolebinding dnsmasq-controller-leader-election --role dnsmasq-controller-leader-election --serviceaccount dnsmasq:dnsmasq-controller
+  
   kubectl apply -n dnsmasq \
     -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcphosts.yaml \
     -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcpoptions.yaml \
@@ -115,7 +115,7 @@ There is a number of dependencies needed to make kubefarm working:
   kubectl label node --all node-role.kubernetes.io/dnsmasq=
   ```
   
-You also need to deploy basic platform matchers for DHCP, they allows to detect the clients architecture (PC or EFI) to allow sending proper bootloader binary.
+You also need to deploy basic platform matchers for DHCP. They allow you to detect the clients architecture (PC or EFI) to allow sending proper bootloader binaries:
 
 ```bash
 kubectl apply -n dnsmasq -f https://github.com/kvaps/kubefarm/raw/master/deploy/dhcp-platform-matchers.yaml
@@ -127,23 +127,21 @@ kubectl apply -n dnsmasq -f https://github.com/kvaps/kubefarm/raw/master/deploy/
 [MetalLB]: https://metallb.universe.tf
 [Dnsmasq-controller]: https://github.com/kvaps/dnsmasq-controller
 
-
-
 ## Quick Start
 
-Spawn new cluster:
+Spawn a new cluster:
 
 ```bash
 helm repo add kvaps https://kvaps.github.io/charts
 helm show values kvaps/kubefarm --version 0.13.4 > values.yaml
-vim values.yaml
-helm install cluster1 kvaps/kubefarm --version 0.13.4 \
+${EDITOR} values.yaml
+helm install ${cluster_name} kvaps/kubefarm --version 0.13.4 \
   --namespace kubefarm-cluster1 \
   --create-namespace \
   -f values.yaml
 ```
 
-> **Warning:** As in standard case, clusters are bootstrapped without the CNI-plugin installed. Please follow official Kubernetes to choose and install the CNI-plugin to complete the installation.
+> **Warning:** As is standard, clusters are bootstrapped without the CNI-plugin installed. Please follow official Kubernetes to choose and install the CNI-plugin to complete the installation.
 
 
 ### Cleanup
@@ -162,15 +160,15 @@ kubectl exec -ti deploy/cluster1-kubernetes-admin -- sh
 
 #### External clients
 
-To achieve that you need to specify correct hostname or IP-address for `kubernetes.apiserver.certSANs` in your [`values.yaml`](deploy/helm/kubefarm/values.yaml) file.
+To achieve that you need to specify the correct hostname or IP address for the `kubernetes.apiserver.certSANs` in your [`values.yaml`](deploy/helm/kubefarm/values.yaml) file:
 
-Now you can get kubeconfig for your cluster:
+  Now you can get kubeconfig for your cluster:
 
-```bash
-kubectl exec -ti deploy/microservices-kubernetes-admin -- kubectl config view --flatten
-```
+    ```bash
+    kubectl exec -ti deploy/microservices-kubernetes-admin -- kubectl config view --flatten
+    ```
 
-you only need to correct the server address in it.
+  You only need to correct the server address in it.
 
 ## License
 
