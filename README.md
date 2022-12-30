@@ -34,7 +34,7 @@ You can build your own image for the physical servers simply by just using a [Do
 
 You can deploy as many clusters as you want! All of them will have a separate control-plane, non visible to its consumers. Cert-manager will take care of  the certificates.
 
-#### Known components0
+#### Known components
 
 The whole setup consists of a few0 components:
 
