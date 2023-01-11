@@ -6,12 +6,16 @@ icon: https://avatars1.githubusercontent.com/u/68351149?s=150&u=b8b4cb0f36428127
 keywords:
   - kubernetes
   - ltsp
-home: https://github.com/kvaps/kubefarm
+home: https://github.com/kubefarm/kubefarm
 sources:
-  - https://github.com/kvaps/kubefarm
+  - https://github.com/kubefarm/kubefarm
 maintainers:
   - name: kvaps
     email: kvapss@gmail.com
+  - name: krakazyabra
+    email: pronin.egor@gmail.com
+  - name: mrakopes
+    email: dave@mtfbwy.cz
 dependencies:
   - name: kubernetes
     version: 0.13.4

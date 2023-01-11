@@ -28,7 +28,7 @@ You can spawn new Kubernetes clusters and PXE-servers just using Helm, very quic
 
 You can build your own image for the physical servers simply by just using a [Dockerfile]. The default image is based on Ubuntu. You can put anything you need! Simply add any additional packages and custom kernel modules, and initiate the build!
 
-[Dockerfile]: https://github.com/kvaps/kubefarm/blob/master/build/ltsp/Dockerfile
+[Dockerfile]: https://github.com/kubefarm/kubefarm/blob/master/build/ltsp/Dockerfile
 
 #### Secure
 
@@ -42,8 +42,8 @@ The whole setup consists of a few0 components:
 - **[Dnsmasq-controller]** - A simple wrapper for `Dnsmasq`, which automates the configuration using Kubernetes CRDs and will perform leader-election for DHCP high availability.
 - **[LTSP]** - Network boot server and boot time configuration framework for clients. It allows you to boot the OS over the network, directly to RAM and perform initial configurations for each server.
 
-[Kubernetes-in-Kubernetes]: https://github.com/kvaps/kubernetes-in-kubernetes
-[Dnsmasq-controller]: https://github.com/kvaps/dnsmasq-controller
+[Kubernetes-in-Kubernetes]: https://github.com/kubefarm/kubernetes-in-kubernetes
+[Dnsmasq-controller]: https://github.com/kubefarm/dnsmasq-controller
 [LTSP]: https://github.com/ltsp/ltsp
 
 ## Preparation
@@ -104,28 +104,28 @@ There is a number of dependencies needed to make kubefarm work:
   kubectl create -n dnsmasq rolebinding dnsmasq-controller-leader-election --role dnsmasq-controller-leader-election --serviceaccount dnsmasq:dnsmasq-controller
   
   kubectl apply -n dnsmasq \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcphosts.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcpoptions.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dnshosts.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dnsmasqoptions.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/rbac/service_account.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/rbac/role.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/rbac/leader_election_role.yaml \
-    -f https://github.com/kvaps/dnsmasq-controller/raw/master/config/controller/dhcp-server.yaml
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcphosts.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dhcpoptions.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dnshosts.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/crd/bases/dnsmasq.kvaps.cf_dnsmasqoptions.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/rbac/service_account.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/rbac/role.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/rbac/leader_election_role.yaml \
+    -f https://github.com/kubefarm/dnsmasq-controller/raw/master/config/controller/dhcp-server.yaml
   kubectl label node --all node-role.kubernetes.io/dnsmasq=
   ```
   
 You also need to deploy basic platform matchers for DHCP. They allow you to detect the clients architecture (PC or EFI) to allow sending proper bootloader binaries:
 
 ```bash
-kubectl apply -n dnsmasq -f https://github.com/kvaps/kubefarm/raw/master/deploy/dhcp-platform-matchers.yaml
+kubectl apply -n dnsmasq -f https://github.com/kubefarm/kubefarm/raw/master/deploy/dhcp-platform-matchers.yaml
 ```
 
 [Kubernetes]: https://kubernetes.io/
 [Cert-manager]: https://cert-manager.io
 [Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
 [MetalLB]: https://metallb.universe.tf
-[Dnsmasq-controller]: https://github.com/kvaps/dnsmasq-controller
+[Dnsmasq-controller]: https://github.com/kubefarm/dnsmasq-controller
 
 ## Quick Start
 
